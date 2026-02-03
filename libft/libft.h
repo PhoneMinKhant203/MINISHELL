@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/28 16:45:40 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/03 09:12:24 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/03 13:19:02 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,5 +84,6 @@ t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
 void	free_char_double_pointer(char **ptr);
 int		ft_iswhitespace(int c);
 char	*get_next_line(int fd);
+char	*mod_strjoin(const char *s1, const char *s2);
 
 #endif
