@@ -1,0 +1,16 @@
+1. Lexing or Parsing : Breaking raw string like "ls -l | grep "txt" > out.txt" into tokens
+
+2. Expansion : Handling envrionment variables 
+
+3. Redirections: Mangaging file descriptors so output goes to files instead of the screen
+
+4. Pipes : Conneting the output of one process to the input of another
+
+5. Execution : Using execve system call to run binaries found in the PATH
+
+6. Built : Creating commends that the shell handles itslef, like cd, echo, export and Execution
+
+
+
+input > Lexical Analysis & Parsing > Expansion > Command Execution > Execution
+
