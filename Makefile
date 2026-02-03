@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+         #
+#    By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/17 12:54:11 by wintoo            #+#    #+#              #
-#    Updated: 2026/02/02 17:14:27 by wintoo           ###   ########.fr        #
+#    Updated: 2026/02/03 17:29:10 by phonekha         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,9 @@ CCFlags = -Wall -Wextra -Werror -g3
 LDFlags = -lreadline
 
 SRCS	= srcs/main.c srcs/signals.c srcs/lexer.c srcs/free.c srcs/error.c \
-		srcs/mini_executor.c
+		srcs/mini_executor.c srcs/builtin.c srcs/built_in/mini_cd.c \
+		srcs/built_in/mini_echo.c srcs/built_in/mini_env.c srcs/built_in/mini_pwd.c \
+		srcs/built_in/mini_unset.c srcs/built_in/mini_export.c
 
 OBJS	= $(SRCS:.c=.o)
 
