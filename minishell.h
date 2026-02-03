@@ -1,0 +1,49 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
+/*   Updated: 2026/02/03 15:40:57 by phonekha         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef MINISHELL_H
+# define MINISHELL_H
+
+# include <unistd.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <signal.h>
+# include <stdbool.h>
+# include <errno.h>
+# include <sys/wait.h>
+# include "libft/libft.h"
+# include <readline/readline.h>
+# include <readline/history.h>
+
+extern volatile sig_atomic_t	g_signal;
+
+//Utils
+void	free2p(char **s);
+void	free1p(char **s);
+
+//Main
+void	setup_signals(void);
+char	**tokenize(char *line);
+int		exe_cmd(char **args, char **envp);
+
+typedef struct s_cmd
+{
+	char			**args; //{"ls", "-l", NULL}
+	char			*path;  // /bin/ls
+	int				infile; // Default 0 (stdin), or FD from <
+	int				outfile; // Default 1 (stdout), or FD from >
+	bool			piped; // Is there a | after this command ?
+	struct s_cmd	*next; // link to the next command in the pipe
+} t_cmd;
+
+
+#endif

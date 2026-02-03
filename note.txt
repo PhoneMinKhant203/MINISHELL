@@ -16,4 +16,8 @@ input > Lexical Analysis & Parsing > Expansion > Command Execution > Execution
 
 
 https://aosabook.org/en/v1/bash.html
+https://medium.com/@abkabex/minishell-42-f680eadde592
+https://medium.com/@zouhairlrs/minishell-building-a-mini-bash-a-42-project-5dc20d671fbb
+https://medium.com/@zouhairlrs/minishell-building-a-mini-bash-a-42-project-5dc20d671fbb
+
 
