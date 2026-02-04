@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 15:20:46 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/04 18:38:07 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ typedef struct s_cmd
     char			*infile;
 	char			*outfile;
 	int				append;
+	char			*heredoc;
     struct s_cmd	*next;
 }	t_cmd;
 
@@ -51,6 +52,19 @@ typedef struct s_token
 	t_tktype		type;
 	struct s_token	*next;
 }	t_token;
+
+typedef struct	s_env
+{
+	char			*key;
+	char			*value;
+	struct s_env	*next;
+}	t_env;
+
+typedef struct s_shell
+{
+	t_env	*env;
+	int		last_status;
+}	t_shell;
 
 //Utils
 void	free2p(char **s);
@@ -77,6 +91,36 @@ void	handle_redir(t_cmd *cmd, t_token *tok);
 t_cmd	*parse_one_cmd(t_token *tok);
 t_token	*skip_to_pipe(t_token *tok);
 t_cmd	*parse(t_token *tok);
+
+//expand
+void	expand_args(char **args, t_shell *sh);
+char	*expand_str(char *s, t_shell *sh);
+char	*handle_single_quote(char *res, char *s, int *i);
+char	*handle_double_quote(char *res, char *s, int *i, t_shell *sh);
+char	*handle_dollar(char *res, char *s, int *i, t_shell *sh);
+char	*append_char(char *s, char c);
+char	*append_str(char *s1, char *s2);
+void	expand_redirs(t_cmd *cmd, t_shell *sh);
+void	expand_cmds(t_cmd *cmds, t_shell *sh);
+
+//Built in
+int		is_builtin(char *cmd);
+int		exec_builtin(char **args, t_env **env_copy);
+t_env	*init_env(char **envp);
+int		mini_cd(char **args);
+int		mini_echo(char **args);
+int		mini_pwd(void);
+int		mini_env(t_env *env);
+void	mini_exit(char **args);
+t_env	*find_env_node(t_env *env, char *key);
+void	add_or_update_env(t_env **env, char *key, char *value);
+int		mini_export(char **args, t_env **env);
+int		mini_unset(char **args, t_env **env);
+int		is_valid_var_name(char *str);
+void	sort_env_list(t_env *head);
+void	print_sorted_env(t_env *env);
+t_env	*copy_env_list(t_env *env);
+void	free_env_list(t_env *env);
 
 int		exe_cmd(char **args, char **envp);
 

@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:19:45 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 15:06:32 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/04 18:38:34 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ t_cmd	*new_cmd(void)
 	cmd->infile = NULL;
 	cmd->outfile = NULL;
 	cmd->append = 0;
+	cmd->heredoc = NULL;
 	cmd->next = NULL;
 	return (cmd);
 }
