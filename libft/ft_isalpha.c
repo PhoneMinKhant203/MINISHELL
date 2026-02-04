@@ -3,16 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   ft_isalpha.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/25 10:46:11 by phonekha          #+#    #+#             */
-/*   Updated: 2025/08/28 17:10:50 by phonekha         ###   ########.fr       */
+/*   Created: 2025/08/26 15:35:24 by wintoo            #+#    #+#             */
+/*   Updated: 2025/08/26 16:05:17 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-
-int	ft_isalpha(char c)
+int	ft_isalpha(int c)
 {
-	return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'));
+	if ((c >= 97 && c <= 122) || (c >= 65 && c <= 90))
+		return (1024);
+	return (0);
 }
+
+// #include <ctype.h>
+// #include <stdio.h>
+
+// int	main(void)
+// {
+// 	char	c;
+
+// 	c = '7';
+// 	printf("%d\n", ft_isalpha(c));
+// 	printf("%d\n", isalpha(c));
+// }

@@ -3,67 +3,78 @@
 /*                                                        :::      ::::::::   */
 /*   ft_itoa.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/29 13:53:53 by phonekha          #+#    #+#             */
-/*   Updated: 2025/09/01 13:41:43 by phonekha         ###   ########.fr       */
+/*   Created: 2025/08/30 11:58:06 by wintoo            #+#    #+#             */
+/*   Updated: 2025/09/01 16:04:09 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static int	ft_nbr_len(long nb)
+int	ft_count(int n)
 {
-	int	i;
+	int		count;
+	long	nb;
 
-	i = 0;
-	if (nb == 0)
-		return (1);
-	if (nb < 0)
+	count = 0;
+	nb = n;
+	if (nb <= 0)
 	{
-		nb = -nb;
-		i++;
+		nb *= -1;
+		count++;
 	}
 	while (nb > 0)
 	{
-		nb /= 10;
-		i++;
+		nb = nb / 10;
+		count++;
 	}
-	return (i);
+	return (count);
+}
+
+char	*create_res(int nb)
+{
+	char	*res;
+	int		count;
+
+	count = ft_count(nb);
+	res = malloc(count + 1);
+	if (!res)
+		return (NULL);
+	res[count] = '\0';
+	if (nb == 0)
+	{
+		res[0] = '0';
+		return (res);
+	}
+	if (nb < 0)
+		res[0] = '-';
+	return (res);
 }
 
 char	*ft_itoa(int n)
 {
-	char	*ret;
-	long	ln;
-	int		len;
+	char	*res;
+	long	nb;
+	int		count;
 
-	ln = n;
-	len = ft_nbr_len(ln);
-	ret = (char *)malloc(sizeof(char) * (len + 1));
-	if (!ret)
+	count = ft_count(n) - 1;
+	res = create_res(n);
+	if (!res)
 		return (NULL);
-	ret[len] = '\0';
-	if (ln == 0)
-		ret[0] = '0';
-	if (ln < 0)
+	nb = n;
+	if (nb < 0)
+		nb = -nb;
+	while (nb > 0)
 	{
-		ret[0] = '-';
-		ln = -ln;
+		res[count] = (nb % 10) + '0';
+		nb /= 10;
+		count--;
 	}
-	while (ln > 0)
-	{
-		len--;
-		ret[len] = (ln % 10) + '0';
-		ln /= 10;
-	}
-	return (ret);
+	return (res);
 }
 
 // int	main(void)
 // {
-// 	int n = -1234567;
-
-// 	char *res = ft_itoa(n);
-// 	printf("%s",res);
+// 	printf("%s\n", ft_itoa(0));
 // }

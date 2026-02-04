@@ -3,35 +3,44 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strlcat.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/25 18:37:25 by phonekha          #+#    #+#             */
-/*   Updated: 2025/08/28 17:11:35 by phonekha         ###   ########.fr       */
+/*   Created: 2025/08/27 12:19:26 by wintoo            #+#    #+#             */
+/*   Updated: 2025/08/29 13:07:32 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-size_t	ft_strlcat(char *dst, const char *src, size_t size)
+size_t	ft_strlcat(char *dest, const char *src, size_t size)
 {
-	size_t	dest_len;
-	size_t	src_len;
+	size_t	dlen;
+	size_t	slen;
 	size_t	i;
 
-	dest_len = 0;
-	while (dst[dest_len] && dest_len < size)
-		dest_len++;
-	src_len = 0;
-	while (src[src_len])
-		src_len++;
-	if (dest_len == size)
-		return (size + src_len);
+	dlen = ft_strlen(dest);
+	slen = ft_strlen(src);
 	i = 0;
-	while (src[i] && dest_len + i < size - 1)
+	if (dlen >= size)
+		return (slen + size);
+	while (src[i] && dlen + i < size - 1)
 	{
-		dst[dest_len + i] = src[i];
+		dest[dlen + i] = src[i];
 		i++;
 	}
-	dst[dest_len + i] = '\0';
-	return (dest_len + src_len);
+	dest[dlen + i] = '\0';
+	return (slen + dlen);
 }
+
+// #include <bsd/string.h>
+
+// int	main(void)
+// {
+// 	char	*dest;
+// 	dest = (char *)malloc(sizeof(*dest) * 15);
+// 	dest[11] = 'a';
+// 	char	src[] = "Hello Test Again";
+
+// 	printf("%ld\n", ft_strlcat(dest, "lorem", 15));
+// 	printf("%ld\n", strlcat(dest, "lorem", 15));
+// }

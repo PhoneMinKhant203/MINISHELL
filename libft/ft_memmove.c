@@ -3,75 +3,46 @@
 /*                                                        :::      ::::::::   */
 /*   ft_memmove.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/25 17:35:57 by phonekha          #+#    #+#             */
-/*   Updated: 2025/08/28 17:21:45 by phonekha         ###   ########.fr       */
+/*   Created: 2025/08/27 17:28:58 by wintoo            #+#    #+#             */
+/*   Updated: 2025/08/29 14:44:25 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	*ft_memmove(void *dist, const void *src, size_t len)
+void	*ft_memmove(void *dest, const void *src, size_t n)
 {
-	unsigned char		*d;
-	const unsigned char	*s;
+	char	*des;
+	char	*sr;
 
-	d = dist;
-	s = src;
-	if (!d && !s)
+	if (dest == NULL && src == NULL)
 		return (NULL);
-	if (d < s)
+	des = (char *)dest;
+	sr = (char *)src;
+	if (des > sr)
 	{
-		while (len--)
-			*d++ = *s++;
+		while (n-- > 0)
+			des[n] = sr[n];
 	}
 	else
-	{
-		d += len;
-		s += len;
-		while (len--)
-			*--d = *--s;
-	}
-	return (dist);
+		ft_memcpy(dest, src, n);
+	return (des);
 }
 
 // int	main(void)
 // {
-// 	int	src[10] = {1,2,3,4,5,6,7,8,9,10};
-// 	int dest[10];
+// 	// char	src[] = "hij";
+// 	// char	des[] = "abcde";
 
-// 	ft_memmove(dest, src, sizeof(int)*10);
-// 	for (int i = 0; i < 10; i++)
-// 		printf("dest %d = %d\n", i, dest[i]);
+// 	char	str[] = "123456";
+// 	size_t	n = 3;
 
-// 	for (int i = 0; i < 10; i++)
-// 		printf("source %d = %d\n", i, src[i]);
+// 	printf("des - %s, src - %s\n", &str[0], &str[2]);
+// 	printf("ft_memmove: %s\n\n", (char *) ft_memmove(&str[0], &str[2], n));
 
-// 	ft_memmove(src+2, src, sizeof(int)*8);
-// 	for (int i = 0; i < 10; i++)
-// 		printf("dest %d = %d\n", i, dest[i]);
-
-// 	for (int i = 0; i < 10; i++)
-// 		printf("source %d = %d\n", i, src[i]);
-// }
-
-// int	main(void)
-// {
-// 	int	src[8] = {1,2,3,4,5,6};
-// 	int dest[2] = {11, 12};
-
-// 	// ft_memmove(dest, src, sizeof(int)*10);
-// 	// for (int i = 0; i <= 5; i++)
-// 	// 	printf("dest %d = %d\n", i, dest[i]);
-
-// 	// for (int i = 0; i <= 5; i++)
-// 	// 	printf("source %d = %d\n", i, src[i]);
-
-// 	ft_memmove(src+2, src, sizeof(int)*6);
-// 	for (int i = 0; i <= 5; i++)
-// 		printf("dest %d = %d\n", i, dest[i]);
-
-// 	for (int i = 0; i <= 7; i++)
-// 		printf("source %d = %d\n", i, src[i]);
+// 	char	str1[] = "123456";
+// 	printf("des - %s, src - %s\n", &str1[0], &str1[2]);
+// 	printf("memmove: %s\n\n", (char *) memmove(&str1[0], &str1[2], n));
 // }
