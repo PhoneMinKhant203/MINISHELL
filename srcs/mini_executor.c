@@ -6,11 +6,33 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 17:07:58 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/03 17:07:59 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/04 21:14:22 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+int execute_cmds(t_cmd *cmds, t_shell *sh)
+{
+    if (!cmds)
+        return (0);
+    // 1. Parent-only Built-ins (No Pipes)
+    if (!cmds->next && is_builtin(cmds->args[0]))
+    {
+        int tmp_in = dup(STDIN_FILENO);
+        int tmp_out = dup(STDOUT_FILENO);
+        if (setup_redirection(cmds) == 0)
+            sh->last_status = exec_builtin(cmds->args, &sh->env);
+        dup2(tmp_in, STDIN_FILENO);
+        dup2(tmp_out, STDOUT_FILENO);
+        close(tmp_in);
+        close(tmp_out);
+        return (sh->last_status);
+    }
+    // 2. Everything else (Pipes and Binaries)
+    start_executor(cmds, sh);
+    return (sh->last_status);
+}
 
 static int	env_list_size(t_env *env)
 {
@@ -53,62 +75,60 @@ char    *find_path(char *cmd, t_env *env_list)
     t_env   *node;
     char    *full;
     char    *path_with_slash;
+    struct stat st; // Buffer to hold file information
     int     i;
 
-    // 1. If it's already a path (e.g., ./minishell or /bin/ls), just return it
-    if (ft_strchr(cmd, '/') && access(cmd, X_OK) == 0)
-        return (ft_strdup(cmd));
-
-    // 2. Find the PATH variable in linked list
+    if (!cmd || !*cmd)
+        return (NULL);
+    if (ft_strchr(cmd, '/'))
+    {
+        // Check if it's a file AND executable
+        if (stat(cmd, &st) == 0 && S_ISREG(st.st_mode) && access(cmd, X_OK) == 0)
+            return (ft_strdup(cmd));
+        return (NULL);
+    }
     node = find_env_node(env_list, "PATH");
     if (!node || !node->value)
         return (NULL);
-
-    // 3. Split the PATH into individual directories
     dirs = ft_split(node->value, ':');
     if (!dirs)
         return (NULL);
-
-    i = 0;
-    while (dirs[i])
+    i = -1;
+    while (dirs[++i])
     {
-        // 4. Join: dir + "/" + cmd
         path_with_slash = ft_strjoin(dirs[i], "/");
         full = ft_strjoin(path_with_slash, cmd);
         free(path_with_slash);
-        
-        if (access(full, X_OK) == 0)
+        // Check stat to ensure it's not a directory
+        if (stat(full, &st) == 0 && S_ISREG(st.st_mode) && access(full, X_OK) == 0)
         {
             free2p(dirs);
             return (full);
         }
         free(full);
-        i++;
     }
     free2p(dirs);
     return (NULL);
 }
 
-int exe_cmd(char **args, t_env *env_list)
+int exe_cmd(t_cmd *cmd, t_env *env_list)
 {
     pid_t   pid;
     char    *path;
     char    **custom_envp;
     int     status;
 
-    if (!args || !args[0])
+    if (!cmd || !cmd->args || !cmd->args[0])
         return (0);
 
-    // 1. Find the path using our list
-    path = find_path(args[0], env_list);
+    path = find_path(cmd->args[0], env_list);
     if (!path)
     {
         ft_putstr_fd("minishell: command not found: ", 2);
-        ft_putendl_fd(args[0], 2);
+        ft_putendl_fd(cmd->args[0], 2);
         return (127);
     }
 
-    // 2. Create the char** array for execve
     custom_envp = env_to_array(env_list);
 
     pid = fork();
@@ -116,18 +136,20 @@ int exe_cmd(char **args, t_env *env_list)
         return (perror("fork"), 1);
     if (pid == 0)
     {
-        // 3. Execute!
-        if (execve(path, args, custom_envp) == -1)
+        // Now you can pass 'cmd' to setup_redirection!
+        if (setup_redirection(cmd) == -1)
+            exit(1);
+        
+        if (execve(path, cmd->args, custom_envp) == -1)
         {
             perror("execve");
-            exit(126); // Permission denied / Command cannot execute
+            exit(126);
         }
     }
 
-    // 4. Parent waits and cleans up
     waitpid(pid, &status, 0);
     free(path);
-    free2p(custom_envp);
+    free2p(custom_envp); // This solves the memory leak!
 
     if (WIFEXITED(status))
         return (WEXITSTATUS(status));

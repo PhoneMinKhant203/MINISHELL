@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:06:31 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/03 17:27:01 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/04 20:55:45 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,15 @@ t_env	*init_env(char **envp)
     i = -1;
     while (envp[++i])
     {
-        new = malloc(sizeof(t_env));
-        sep = ft_strchr(envp[i], '=');
-        new->key = ft_substr(envp[i], 0, sep - envp[i]);
-        new->value = ft_strdup(sep + 1);
-        new->next = head;
-        head = new;
+		sep = ft_strchr(envp[i], '=');
+        if (sep)
+        {
+            new = malloc(sizeof(t_env));
+            new->key = ft_substr(envp[i], 0, sep - envp[i]);
+            new->value = ft_strdup(sep + 1);
+            new->next = head;
+            head = new;
+        }
     }
     return (head);
 }
@@ -72,7 +75,7 @@ int	exec_builtin(char **args, t_env **env_copy)
 		return (mini_unset(args, env_copy));
 	if (ft_strncmp(args[0], "exit", 5) == 0)
 		mini_exit(args);
-	return (1);
+	return (0);
 }
 
 

@@ -6,48 +6,60 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:56:25 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/03 17:22:36 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/04 20:05:33 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int main(int argc, char **argv, char **envp)
+static void	process_input(char *line, t_shell *sh)
 {
-    char    *cmd;
-    char    **args;
-    t_env   *env_list;
-    int     last_status;
+	t_token	*tokens;
+	t_cmd	*cmds;
 
-    last_status = 0;
-    (void)argv;
-    if (argc != 1)
-        return (127);
-    
-    env_list = init_env(envp);
-    setup_signals();
-    while (1)
-    {
-        cmd = readline("minishell$ ");
-        if (!cmd)
-        {
-            printf("exit\n");
-            break ;
-        }
-        if (cmd[0])
-            add_history(cmd);
-        args = tokenize(cmd);
-        free(cmd);
-        if (args && args[0])
-        {
-            // Now the types match what we fixed in the header
-            if(is_builtin(args[0]))
-                last_status = exec_builtin(args, &env_list);
-            else
-                last_status = exe_cmd(args, env_list);
-            free2p(args);
-        }
-    }
-	//still need function to free env_list
-    return (last_status);
+	tokens = tokenize(line);
+	if (!tokens)
+		return ;
+	cmds = parse(tokens);
+	free_tokens(tokens); // Tokens aren't needed once we have cmds
+	if (!cmds)
+		return ;
+	// 1. Expansion (handling $VAR) happens here
+	expand_cmds(cmds, sh);	
+	// 2. Execution Engine runs here
+	// If it's one command and a builtin, run it in the parent.
+	// If it's a binary (ls) or has pipes, run in children.
+	sh->last_status = execute_cmds(cmds, sh);
+	
+	free_cmds(cmds);
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	char	*input;
+	t_shell	sh;
+
+	(void)argv;
+	if (argc != 1)
+		return (1);
+	sh.env = init_env(envp);
+	sh.last_status = 0;
+	setup_signals();
+	while (1)
+	{
+		input = readline("minishell$ ");
+		if (!input)
+		{
+			printf("exit\n");
+			break ;
+		}
+		if (*input)
+		{
+			add_history(input);
+			process_input(input, &sh);
+		}
+		free(input);
+	}
+	free_env_list(sh.env);
+	return (sh.last_status);
 }
