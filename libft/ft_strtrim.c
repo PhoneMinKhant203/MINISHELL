@@ -3,55 +3,57 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strtrim.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/29 09:33:10 by phonekha          #+#    #+#             */
-/*   Updated: 2025/08/29 14:55:10 by phonekha         ###   ########.fr       */
+/*   Created: 2025/08/29 17:25:41 by wintoo            #+#    #+#             */
+/*   Updated: 2025/09/01 12:31:59 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static int	ft_char_in_set(char c, char const *set)
+int	ft_isset(char s, const char *set)
 {
-	size_t	i;
+	int	i;
 
 	i = 0;
 	while (set[i])
 	{
-		if (set[i] == c)
+		if (set[i] == s)
 			return (1);
 		i++;
 	}
 	return (0);
 }
 
-char	*ft_strtrim(char const *s1, char const *set)
+char	*ft_strtrim(const char *s1, const char *set)
 {
-	size_t	i;
-	size_t	start;
-	size_t	end;
 	char	*res;
+	int		start;
+	int		end;
+	int		i;
 
-	i = 0;
+	if (s1 == NULL || set == NULL)
+		return (NULL);
 	start = 0;
-	end = ft_strlen(s1);
-	while (s1[start] && ft_char_in_set(s1[start], set))
+	while (s1[start] && ft_isset(s1[start], set))
 		start++;
-	while (end > start && ft_char_in_set(s1[end - 1], set))
+	end = ft_strlen(s1) - 1;
+	while (end > start && ft_isset(s1[end], set))
 		end--;
-	res = (char *)malloc(sizeof(*s1) * (end - start + 1));
+	res = malloc(end - start + 2);
 	if (!res)
 		return (NULL);
-	while (start < end)
+	i = 0;
+	while (s1[start] && start < end + 1)
 		res[i++] = s1[start++];
-	res[i] = 0;
+	res[i] = '\0';
 	return (res);
 }
 
-// int main(void)
+// int	main(void)
 // {
-// 	char *s1 = "lorem ipsum dolor sit amet";
-// 	char *res = ft_strtrim(s1, "te");	
-// 	printf("%s",res);
+// 	char s1[] = "telorem ipsum dolor sit amet";
+
+// 	printf("%s\n", ft_strtrim(s1, "te"));
 // }

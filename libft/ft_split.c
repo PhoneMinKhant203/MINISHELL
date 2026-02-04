@@ -3,107 +3,65 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/29 09:59:58 by phonekha          #+#    #+#             */
-/*   Updated: 2025/09/01 12:14:58 by phonekha         ###   ########.fr       */
+/*   Created: 2025/08/29 18:24:46 by wintoo            #+#    #+#             */
+/*   Updated: 2026/02/02 18:22:08 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static size_t	ft_word_count(char const *s, char c)
+static int	ft_wordcount(char const *s, char c)
 {
-	size_t	count;
-	int		is_word;
+	int	count;
+	int	i;
 
 	count = 0;
-	is_word = 0;
-	while (*s)
+	i = 0;
+	while (s[i])
 	{
-		if (*s == c)
-			is_word = 0;
-		else if (is_word == 0)
-		{
-			is_word = 1;
+		if (s[i] != c && (!s[i + 1] || s[i + 1] == c))
 			count++;
-		}
-		s++;
+		i++;
 	}
 	return (count);
 }
 
-static void	*ft_free_splitstr(char **splitstr, size_t end)
+static	char	**ft_empty_arr(void)
 {
-	size_t	i;
+	char	**arr;
 
-	i = 0;
-	while (i < end)
-	{
-		free(splitstr[i]);
-		i++;
-	}
-	free(splitstr);
-	return (NULL);
-}
-
-static size_t	ft_get_word_len(char const *s, char c)
-{
-	size_t	len;
-
-	len = 0;
-	while (s[len] && s[len] != c)
-		len++;
-	return (len);
-}
-
-static char	**ft_add_word(char **splitstr, char const *s, char c)
-{
-	size_t	word_len;
-	size_t	j;
-
-	j = 0;
-	while (*s)
-	{
-		if (*s != c)
-		{
-			word_len = ft_get_word_len(s, c);
-			splitstr[j] = ft_substr(s, 0, word_len);
-			if (!splitstr[j])
-				return (ft_free_splitstr(splitstr, j));
-			s += word_len;
-			j++;
-		}
-		else
-			s++;
-	}
-	return (splitstr);
+	arr = malloc(sizeof(char *));
+	arr[0] = NULL;
+	return (arr);
 }
 
 char	**ft_split(char const *s, char c)
 {
 	char	**res;
-	size_t	total_words;
+	int		start;
+	int		i;
+	int		sub;
 
 	if (!s)
 		return (NULL);
-	total_words = ft_word_count(s, c);
-	res = malloc(sizeof(char *) * (total_words + 1));
+	if (ft_strlen(s) == 0)
+		return (ft_empty_arr());
+	res = malloc(sizeof(char *) * (ft_wordcount(s, c) + 1));
 	if (!res)
 		return (NULL);
-	res = ft_add_word(res, s, c);
-	if (!res)
-		return (NULL);
-	res[total_words] = NULL;
+	i = 0;
+	start = 0;
+	sub = 0;
+	while (s[i])
+	{
+		if (s[i] == c && s[i + 1] && s[i + 1] != c)
+			start = i + 1;
+		if (s[i] != c && (!s[i + 1] || s[i + 1] == c))
+			res[sub++] = ft_substr(s, start, i + 1 - start);
+		i++;
+	}
+	res[sub] = NULL;
 	return (res);
 }
-
-// int	main(void)
-// {
-// 	char **res = ft_split("   lorem   ipsum dolor     
-// sit amet, consectetur   adipiscing elit. Sed non risus. Suspendisse  ", ' ');
-
-// 	int i = 0;
-// 	while (res[i++])
-// 		printf("%s\n", res[i]);
-// }

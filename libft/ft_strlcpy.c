@@ -3,44 +3,40 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strlcpy.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/25 17:51:33 by phonekha          #+#    #+#             */
-/*   Updated: 2025/08/28 17:27:40 by phonekha         ###   ########.fr       */
+/*   Created: 2025/08/26 17:07:28 by wintoo            #+#    #+#             */
+/*   Updated: 2025/08/28 17:31:22 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int	ft_strlcpy(char *dist, const char *src, size_t len)
+size_t	ft_strlcpy(char *dest, const char *src, size_t size)
 {
 	size_t	i;
 
 	i = 0;
-	if (len > 0)
+	if (size > 0)
 	{
-		while (src[i] != '\0' && i < len - 1)
+		while (i < size - 1 && *src)
 		{
-			dist[i] = src[i];
-			i++;
+			dest[i++] = *src++;
 		}
-		dist[i] = 0;
+		dest[i] = '\0';
 	}
-	while (src[i])
+	while (*src++)
 		i++;
 	return (i);
 }
 
-// int main() {
-//     char source[] = "Hello, World!";
-//     char destination[10]; 
-//     size_t result;
+// #include <bsd/string.h>
 
-//     result = ft_strlcpy(destination, source, 5);
+// int	main(void)
+// {
+// 	char	dest[] = "agdsf safsd";
+// 	char	src[] = "lorem ipsum dolor sit amet";
 
-//     printf("Source: %s\n", source);
-//     printf("Destination: %s\n", destination);
-//     printf("Length of source string: %zu\n", result);
-
-//     return 0;
+// 	printf("%ld\n", ft_strlcpy(dest, src, 0));
+// 	printf("%ld\n", strlcpy(dest, src, 0));
 // }

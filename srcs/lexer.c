@@ -5,109 +5,59 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/01 17:14:18 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/02 14:47:41 by wintoo           ###   ########.fr       */
+/*   Created: 2026/02/03 16:55:51 by wintoo            #+#    #+#             */
+/*   Updated: 2026/02/04 15:20:30 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static int	count_words(char *s)
+t_token	*new_token(char *val, t_tktype type)
 {
+	t_token	*token;
+
+	token = malloc(sizeof(t_token));
+	if (!token)
+		return (NULL);
+	token->value = val;
+	token->type = type;
+	token->next = NULL;
+	return (token);
+}
+
+t_token	*tokenize(char *line)
+{
+	t_token	*head;
+	t_token	*tail;
+	t_token	*new;
 	int		i;
-	int		count;
-	char	quote;
 
 	i = 0;
-	count = 0;
-	quote = 0;
-	while (s[i])
-	{
-		while (s[i] == ' ')
-			i++;
-		count++;
-		if (s[i] && (s[i] == '\'' || s[i] == '"'))
-		{
-			quote = s[i++];
-			while (s[i] && s[i] != quote)
-				i++;
-			if (s[i] && s[i] == quote)
-				i++;
-		}
-		else
-			while (s[i] && s[i] != ' ')
-				i++;
-	}
-	return (count);
-}
-
-static int	get_wdlen(char *s, int *i)
-{
-	int		len;
-	char	quote;
-
-	len = 0;
-	quote = 0;
-	if (s[*i] == '\'' || s[*i] == '"')
-		quote = s[(*i)++];
-	while (s[*i])
-	{
-		if (quote && s[*i] == quote)
-			break ;
-		if (!quote && s[*i] == ' ')
-			break ;
-		(*i)++;
-		len++;
-	}
-	if (quote && s[*i] == quote)
-		(*i)++;
-	return (len);
-}
-
-static char	*get_word(char *s, int *i)
-{
-	char	*word;
-	int		len;
-	int		start;
-	int		j;
-
-	j = 0;
-	start = *i;
-	if (s[*i] == '\'' || s[*i] == '"')
-		start++;
-	len = get_wdlen(s, i);
-	word = malloc(len + 1);
-	if (!word)
-		return (NULL);
-	while (j < len)
-	{
-		word[j] = s[start + j];
-		j++;
-	}
-	word[len] = '\0';
-	return (word);
-}
-
-char	**tokenize(char *line)
-{
-	char	**tokens;
-	int		i;
-	int		j;
-
-	tokens = malloc(sizeof(char *) * (count_words(line) + 1));
-	if (!tokens)
-		return (NULL);
-	i = 0;
-	j = 0;
+	head = NULL;
+	tail = NULL;
 	while (line[i])
 	{
-		if (line[i] == ' ')
-		{
-			i++;
-			continue ;
-		}
-		tokens[j++] = get_word(line, &i);
+		if (!skip_spaces(line, &i))
+			break ;
+		new = get_token(line, &i);
+		if (!new)
+			return (NULL);
+		if (!head)
+			head = new;
+		else
+			tail->next = new;
+		tail = new;
 	}
-	tokens[j] = NULL;
-	return (tokens);
+	return (head);
 }
+
+/*
+ls -l wc
+.........
+head: 0, tail: 0
+
+|1|head: ls         |2| head: ls         |3| head: ls
+|1|tail: 0          |2| tail: ls         |3| tail: -l
+|1|tail->next: 0    |2| tail->next: -l   |3| tail->next: wc
+|1|tail: ls         |2| tail: -l         |3| tail: wc
+*/
