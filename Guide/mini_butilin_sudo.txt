@@ -1,0 +1,96 @@
+mini_cd
+
+1. Check if a path (arg) was provided. 
+	If not, print an error (this simple version doesn't handle the "go to home" default)
+2. Move the process to new path with system call chdir()
+3. If chdir fails (the path doesn't exist), print the system error using perror
+
+
+mini_echo
+
+1. Start at the first argument
+2. Check for -n flag, 
+	If first argument is exactly -n, set a "no-newline" flag and move to the next word
+3. Loop the remainig words
+	Print the current word
+	If there is another word after this onee, print a space
+After all words are printed, if the -n was not set, print a newline (\n)
+
+
+mini_env
+
+1. Start at the beginning of the envrionment list
+2. While there are nodes in the list
+	a. If the node has a value, print it in the format: Key=Value
+	b. Move to the next node
+
+
+copy_env_list
+
+Goal : Create 100% indepednet duplicate of the envrionment so we can sort of modigy it without touching the origical
+
+1. Start with an empty new_list
+2. Loop thorough the existing envrionment node by node.
+	a. Create a new empty node.
+	b. Duplicate the Key and Value strings exactly
+	c. Push this new node to the front of the new_list
+3. Return the new list.
+
+
+free_env_list
+
+Goal : Prevent memoery leaks by freeing a list once we are done using it 
+
+1. While the list is not empty 	
+	a. Save a pointer to the next node.
+	b. Free the current node's Key and Value
+	c. Free the node itself.
+	d. Move to the next node you saved earlier. 
+
+
+print_sorted_env
+
+Goal : Print the user an alphabetized list in the declare -x Key="Value" format
+
+1. Create a temporary  copy of the envrionment
+2. Sort that copy alphabetically. 
+3. Loop through the sorted copy
+	a. Print declare -x followed by the key
+	b. If a Value exists, print it inside double quotes: ="VALUE"
+3. Free that temporary copy list.
+
+
+mini_export
+
+Goal : Handle multiple arguments, Validate names , Handle Keys without Value
+
+1. If no argument, Run the print_sorted_env function
+2. If argument exist, Loop through each argument provided
+	a. Check Identity
+		Name valid ? (start with letter or _ and contain only alph-numeric or _)
+	b. Check for =
+		if = exist, split the string into Key and Value, Add or Update it in the list.
+		if No, add the key to the list with a NULL value (standard for exported, but empty variables)
+
+
+mini_exit
+
+Goal : Close the shell properly while handling numeric rules and errors 
+
+1. Print the wrod "exit"
+2. Check Arguments:
+	a. If no Arguments, Exit the shell immediately with status 0
+	b. Is it a number (check if first arg contain only digits, allowing for + or - at the start)
+		- if it contains letters, print "Numeric argument required" and exit with status 255
+	c. If there is more than one argument
+		- Print "too many arguments"
+		- Do not exit the shell
+3. Convert the argument string to an integer and exit the shell with that number
+
+
+
+
+
+
+
+

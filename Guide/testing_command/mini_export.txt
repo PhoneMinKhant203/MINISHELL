@@ -1,0 +1,14 @@
+This document outlines the standard test cases for the export command. To run these tests, launch the minishell executable and input the commands below.
+
+export (Check standard behavior)
+env (Comparison)
+export USERNAME=May (Basic assignment)
+export USERNAME=Phone (Update existing key)
+export A=1 B=2 C=3 (Test loop processing)
+export 1VAR=test (Start with number )
+export VAR-NAME=text (Contain Hypen)
+export VAR!NAME=text (Contain special character)
+export =value (No key)
+export OK=yest 123NO=no (mixed value)
+export "" (empty string)
+export SECRET_VAR (no =)

@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/03 17:39:15 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/03 21:35:30 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,13 @@ t_env	*find_env_node(t_env *env, char *key);
 void	add_or_update_env(t_env **env, char *key, char *value);
 int		mini_export(char **args, t_env **env);
 int		mini_unset(char **args, t_env **env);
+int		is_valid_var_name(char *str);
+void	sort_env_list(t_env *head);
+void	print_sorted_env(t_env *env);
+t_env	*copy_env_list(t_env *env);
+void	free_env_list(t_env *env);
+
+
 
 //Execucator
 char	**env_to_array(t_env *env);
