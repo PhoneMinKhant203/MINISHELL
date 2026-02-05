@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/05 16:25:57 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 16:37:07 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,67 +15,68 @@
 void start_executor(t_cmd *cmds, t_shell *sh)
 {
     int     fd_pipe[2];
-    int     fd_in; // This keeps track of the 'read end' for the next command
+    int     fd_in;
     pid_t   pid;
+    int     i;
 
-    fd_in = STDIN_FILENO; // The first command reads from the standard input
+    fd_in = STDIN_FILENO;
     while (cmds)
     {
-        // 1. If there is a next command, we need a pipe
         if (cmds->next)
         {
             if (pipe(fd_pipe) == -1)
                 return (perror("minishell: pipe"));
         }
-
         pid = fork();
         if (pid == -1)
             return (perror("minishell: fork"));
-        
         if (pid == 0) // CHILD PROCESS
         {
-            // Connect previous pipe's read end to STDIN
             if (fd_in != STDIN_FILENO)
             {
                 dup2(fd_in, STDIN_FILENO);
                 close(fd_in);
             }
-            // If there is a next command, connect STDOUT to this pipe's write end
             if (cmds->next)
             {
-                close(fd_pipe[0]); // Child doesn't read from its own pipe
+                close(fd_pipe[0]);
                 dup2(fd_pipe[1], STDOUT_FILENO);
                 close(fd_pipe[1]);
             }
-            
-            // Run Redirections (<, >, >>) - These have higher priority than pipes!
             if (setup_redirection(cmds) == -1)
                 exit(1);
 
-            // Execute the command
-            if (is_builtin(cmds->args[0]))
-                exit(exec_builtin(cmds->args, &sh->env));
+            // --- THE SHIFT FIX START ---
+            i = 0;
+            while (cmds->args[i] && cmds->args[i][0] == '\0')
+                i++;
+            
+            // If everything is empty (like typing ""), just exit child quietly
+            if (!cmds->args[i])
+                exit(0);
+
+            // Execute using the shifted index 'i'
+            if (is_builtin(cmds->args[i]))
+                exit(exec_builtin(&cmds->args[i], &sh->env));
             else
                 child_exec_binary(cmds, sh);
+            // --- THE SHIFT FIX END ---
         }
         else // PARENT PROCESS
         {
-            // Close the read end of the PREVIOUS pipe (we are done with it)
             if (fd_in != STDIN_FILENO)
                 close(fd_in);
-            
-            // If there's a next command, save the read end of THIS pipe for it
             if (cmds->next)
             {
-                close(fd_pipe[1]); // Parent doesn't write to the pipe
+                close(fd_pipe[1]);
                 fd_in = fd_pipe[0];
             }
             cmds = cmds->next;
         }
     }
-    // Final Step: Parent waits for ALL children to finish
     wait_all_children(sh);
 }
+
 
 void child_exec_binary(t_cmd *cmd, t_shell *sh)
 {
