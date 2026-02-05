@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/05 14:21:03 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 14:48:31 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void child_exec_binary(t_cmd *cmd, t_shell *sh)
     path = find_path(cmd->args[0], sh->env);
     if (!path)
     {
-        // 1. Check if it's a directory
+        // 1. Is a Directory Case
         if (stat(cmd->args[0], &st) == 0 && S_ISDIR(st.st_mode))
         {
             write(2, "minishell: ", 11);
@@ -94,7 +94,7 @@ void child_exec_binary(t_cmd *cmd, t_shell *sh)
             write(2, ": Is a directory\n", 17);
             exit(126);
         }
-        // 2. Check if it's a path error (THE FIX FOR $PATH)
+        // 2. Path Error Case ($PATH or /bin/wrong)
         if (ft_strchr(cmd->args[0], '/'))
         {
             write(2, "minishell: ", 11);
@@ -102,10 +102,10 @@ void child_exec_binary(t_cmd *cmd, t_shell *sh)
             write(2, ": No such file or directory\n", 28);
             exit(127);
         }
-        // 3. Default command not found
-        write(2, "minishell: command not found: ", 30);
+        // 3. Command Not Found Case ($USER -> phonekha)
+        // Format: phonekha: command not found
         write(2, cmd->args[0], ft_strlen(cmd->args[0]));
-        write(2, "\n", 1);
+        write(2, ": command not found\n", 20);
         exit(127);
     }
     
