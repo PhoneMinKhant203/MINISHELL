@@ -3,35 +3,43 @@
 /*                                                        :::      ::::::::   */
 /*   ft_putnbr_fd.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/31 15:04:49 by wintoo            #+#    #+#             */
-/*   Updated: 2025/09/01 14:35:26 by wintoo           ###   ########.fr       */
+/*   Created: 2025/08/29 16:27:30 by phonekha          #+#    #+#             */
+/*   Updated: 2025/08/29 16:42:57 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	ft_putnbr_fd(int n, int fd)
+static int	ft_abs(int n)
 {
-	long	nb;
-
-	nb = n;
-	if (nb < 0)
-	{
-		nb = -nb;
-		ft_putchar_fd('-', fd);
-	}
-	if (nb < 10)
-		ft_putchar_fd((nb % 10) + '0', fd);
+	if (n < 0)
+		return (-n);
 	else
-	{
-		ft_putnbr_fd(nb / 10, fd);
-		ft_putchar_fd((nb % 10) + '0', fd);
-	}
+		return (n);
 }
 
-// int	main(void)
-// {
-// 	ft_putnbr_fd(-5, 2);
-// }
+void	ft_putnbr_fd(int n, int fd)
+{
+	char	str[13];
+	int		sign;
+	int		length;
+
+	sign = n < 0;
+	ft_bzero(str, 13);
+	if (n == 0)
+		str[0] = '0';
+	length = 0;
+	while (n != 0)
+	{
+		str[length++] = '0' + ft_abs(n % 10);
+		n = (n / 10);
+	}
+	if (sign)
+		str[length] = '-';
+	else if (length > 0)
+		length--;
+	while (length >= 0)
+		write(fd, &str[length--], 1);
+}

@@ -1,0 +1,48 @@
+===== builtin.c =====
+
+init_env
+Goal : Take the standard envrionment array (string like "USER=student") and turn them into a linked list so we can easily add or remove variables.
+
+1. Create an empty list called head
+2. Loop through each string in the system's envp array:
+	2.1 Find where the = character is located
+	2.2 Key: Copy everything before that =
+	2.3 Value: Copy everything after the =
+	2.4 Create a new node with that Key and Value
+	2.5 Attach this node to the front of our list
+3. Return the full list
+
+
+find_env_node
+Goal : Look through our list to find a specific variable (searching for like "HOME")
+
+1. Start at the beginning of the envrionment list
+2. While we haven't reached the end
+	2.1 Compare the current node's Key with the Key we are looking for
+	2.2 If they are a perfect match, (same length and characters)
+		return that node 
+	2.3 Otherwise, move to the next node
+3. If the loop finishes and we found nothing, 
+	return NULL
+
+
+is_builtin 
+Goal : Check if the command inputed by the user is one of the 7 specific commands that our shell handles internally
+
+1. If there is no command, return false zero
+2. Compre the command name with echo, cd, pwd, export, unset, env or exit
+3. If it matches any of these exactly, return true one
+4. Otherwise, return false zero
+
+
+exec_builtin 
+Goal : When we know if a command is a built in, this function is to actually run the correct helper function
+
+1. Look at the first argument (name of command)
+2. If it is "echo", run mini_echo function
+3. Else if it is "pwd", run our mini_pwd function
+4. Else if it is "cd", run our mini_cd function
+5. Else if it is "env", run our mini_env function
+6. Else if it is "export", run our mini_export function
+7. Else if it is "unset", run our mini_unset function
+8. Else if it is "exit", run our mini_exit function

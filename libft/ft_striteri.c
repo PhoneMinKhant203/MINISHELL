@@ -3,23 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   ft_striteri.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/31 14:05:06 by wintoo            #+#    #+#             */
-/*   Updated: 2025/08/31 14:13:47 by wintoo           ###   ########.fr       */
+/*   Created: 2025/08/29 15:32:20 by phonekha          #+#    #+#             */
+/*   Updated: 2025/08/29 16:43:47 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-
 void	ft_striteri(char *s, void (*f)(unsigned int, char*))
 {
-	unsigned int	index;
+	unsigned int	i;
 
-	index = 0;
-	while (s[index])
+	if (!s)
+		return ;
+	i = 0;
+	while (s[i])
 	{
-		f(index, &s[index]);
-		index++;
+		f(i, s + i);
+		i++;
 	}
 }

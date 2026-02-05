@@ -3,27 +3,59 @@
 /*                                                        :::      ::::::::   */
 /*   ft_calloc.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/29 13:11:50 by wintoo            #+#    #+#             */
-/*   Updated: 2025/09/01 11:24:48 by wintoo           ###   ########.fr       */
+/*   Created: 2025/08/28 15:17:39 by phonekha          #+#    #+#             */
+/*   Updated: 2025/09/01 11:30:43 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+// #include <time.h>
 #include "libft.h"
-#include <limits.h>
 
-void	*ft_calloc(size_t nmemb, size_t size)
+void	*ft_calloc(long nmem, long size)
 {
 	void	*ptr;
 
-	if (nmemb == 0 || size == 0)
-		return (malloc(0));
-	if (nmemb * size > INT_MAX || nmemb > INT_MAX || size > INT_MAX)
+	if (nmem == 0 || size == 0)
+		return (malloc(1));
+	if (nmem < 0 || size < 0)
 		return (NULL);
-	ptr = (void *)malloc(nmemb * size);
+	ptr = malloc(nmem * size);
 	if (!ptr)
 		return (NULL);
-	ft_bzero(ptr, nmemb * size);
+	ft_bzero(ptr, nmem * size);
 	return (ptr);
 }
+
+// int	main (void)
+// {
+// 	clock_t tic, toc;
+// 	int *array;
+
+// 	tic = clock();
+// 	array = malloc(1000000 * sizeof(int));
+// 	toc = clock();
+// 	printf("malloc: %fs\n", (double) (toc - tic) / CLOCKS_PER_SEC);
+// 	free(array);
+
+// 	tic = clock();
+// 	array = ft_calloc(1000000 , sizeof(int));
+// 	toc = clock();
+// 	printf("calloc: %fs\n", (double) (toc - tic) / CLOCKS_PER_SEC);
+// 	free(array);
+// 	// int size = 0;
+// 	// int *junk = 0;
+// 	// srand( time(0) );
+
+// 	// for (int i = 0; i < 1000; i++)
+// 	// {
+// 	// 	size = rand() % 16000;
+// 	// 	junk = malloc( size * sizeof(int));
+// 	// 	for (int j = 0; j < size; j++)
+// 	// 	{
+// 	// 		junk[j] = rand();
+// 	// 	}
+// 	// 	free(junk);
+// 	// }
+// }

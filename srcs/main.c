@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:56:25 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 18:31:35 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/05 12:21:35 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,21 @@ static void	process_input(char *line, t_shell *sh)
 	if (!tokens)
 		return ;
 	cmds = parse(tokens);
-	free_tokens(tokens);
+	free_tokens(tokens); // Tokens aren't needed once we have cmds
 	if (!cmds)
 		return ;
-	expand_cmds(cmds, sh);
-	// execute_cmds(cmds, sh);
+	// 1. Expansion (handling $VAR) happens here
+	expand_cmds(cmds, sh);	
+	if (!cmds || !cmds->args || !cmds->args[0] || cmds->args[0][0] == '\0')
+	{
+		free_cmds(cmds);
+		return ;
+	}
+	// 2. Execution Engine runs here
+	// If it's one command and a builtin, run it in the parent.
+	// If it's a binary (ls) or has pipes, run in children.
+	sh->last_status = execute_cmds(cmds, sh);
+	
 	free_cmds(cmds);
 }
 
@@ -36,7 +46,7 @@ int	main(int argc, char **argv, char **envp)
 
 	(void)argv;
 	if (argc != 1)
-		return (127); // add error later
+		return (1);
 	sh.env = init_env(envp);
 	sh.last_status = 0;
 	setup_signals();
@@ -48,10 +58,13 @@ int	main(int argc, char **argv, char **envp)
 			printf("exit\n");
 			break ;
 		}
-		if (input[0])
+		if (*input)
+		{
 			add_history(input);
-		process_input(input, &sh);
-		free1p(&input);
+			process_input(input, &sh);
+		}
+		free(input);
 	}
-	return (0);
+	free_env_list(sh.env);
+	return (sh.last_status);
 }

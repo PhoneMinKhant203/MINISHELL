@@ -3,28 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   ft_isprint.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/26 15:15:26 by wintoo            #+#    #+#             */
-/*   Updated: 2025/08/26 16:06:58 by wintoo           ###   ########.fr       */
+/*   Created: 2025/08/25 11:27:39 by phonekha          #+#    #+#             */
+/*   Updated: 2025/08/28 17:36:44 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	ft_isprint(int c)
+#include "libft.h"
+
+int	ft_isprint(char c)
 {
-	if ((c >= 0 && c < 32) || c >= 127)
-		return (0);
-	return (16384);
+	return (c >= 32 && c <= 126);
 }
 
-// #include <ctype.h>
-// #include <stdio.h>
-
-// int	main(void)
+// int main(int argc, char const *argv[])
 // {
-// 	char	c;
-
-// 	c = '\0';
-// 	printf("%d\n", ft_isprint(c));
-// 	printf("%d\n", isprint(c));
+// 	int i = 0;
+// 	int j = 0;
+// 	while (i <= 47)
+// 	{
+// 		j = ft_isprint(i);
+// 		printf("%d", j);
+// 		i++;
+// 	}
+// 	return 0;
 // }

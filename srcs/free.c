@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   free.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 15:05:50 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 14:56:14 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/04 20:21:52 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,22 +40,24 @@ void	free_tokens(t_token *tok)
 	}
 }
 
-void	free_cmds(t_cmd *cmd)
+void    free_cmds(t_cmd *cmd)
 {
-	t_cmd	*tmp;
+    t_cmd   *tmp;
 
-	while (cmd)
-	{
-		tmp = cmd->next;
-		if (cmd->args)
-			free2p(cmd->args);
-		if (cmd->infile)
-			free(cmd->infile);
-		if (cmd->outfile)
-			free(cmd->outfile);
-		free(cmd);
-		cmd = tmp;
-	}
+    while (cmd)
+    {
+        tmp = cmd->next;
+        if (cmd->args)
+            free2p(cmd->args);
+        if (cmd->infile)
+            free(cmd->infile);
+        if (cmd->outfile)
+            free(cmd->outfile);
+        if (cmd->heredoc)
+            free(cmd->heredoc);
+        free(cmd);
+        cmd = tmp;
+    }
 }
 
 void	free1p(char **s)

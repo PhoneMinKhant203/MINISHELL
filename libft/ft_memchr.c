@@ -3,26 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   ft_memchr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/27 16:21:08 by wintoo            #+#    #+#             */
-/*   Updated: 2025/09/01 11:53:29 by wintoo           ###   ########.fr       */
+/*   Created: 2025/08/26 13:41:03 by phonekha          #+#    #+#             */
+/*   Updated: 2025/08/28 17:11:00 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	*ft_memchr(const void *s, int c, size_t n)
+void	*ft_memchr(const void *str, int chr, size_t n)
 {
-	unsigned char	*ptr;
-	size_t			i;
+	size_t	i;
 
-	ptr = (unsigned char *)s;
 	i = 0;
+	if (!str)
+		return (NULL);
 	while (i < n)
 	{
-		if (ptr[i] == (unsigned char)c)
-			return ((void *) &ptr[i]);
+		if (*(unsigned char *)(str + i) == (unsigned char)chr)
+			return ((void *)(str + i));
 		i++;
 	}
 	return (NULL);
@@ -30,16 +30,12 @@ void	*ft_memchr(const void *s, int c, size_t n)
 
 // int	main(void)
 // {
-// 	// char myStr[] = "Hello";
+// 	char data[] = {'q','r','s','t','p','a','x'};
 
-// 	// printf("%s\n", (char *)memchr(myStr, 'l', 1));
+// 	char *res = ft_memchr(data, 't', 7);
 
-// 	char s[] = {0, 1, 2 ,3 ,4 ,5};
+// 	printf("res[0] = %c\n", res[0]);
+// 	printf("res[1] = %c\n", res[1]);
 
-// 	printf("%s\n", (char *)ft_memchr(s, 6, 6));
-// 	//printf("%s\n", s + 2);
-
-// 	// int tab[7] = {-49, 49, 1, -1, 0, -2, 2};
-
-// 	// printf("%s\n", (char *)ft_memchr(tab, -1, 7));
+// 	return (0);
 // }

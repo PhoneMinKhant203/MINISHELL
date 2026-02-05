@@ -3,25 +3,40 @@
 /*                                                        :::      ::::::::   */
 /*   ft_memset.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/28 19:14:19 by wintoo            #+#    #+#             */
-/*   Updated: 2025/08/28 19:20:37 by wintoo           ###   ########.fr       */
+/*   Created: 2025/08/25 11:41:48 by phonekha          #+#    #+#             */
+/*   Updated: 2025/08/28 17:11:24 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	*ft_memset(void *s, int c, size_t n)
+void	*ft_memset(void *str, int c, size_t count)
 {
-	char	*str;
 	size_t	i;
 
-	if (!s)
+	if (!str)
 		return (NULL);
-	str = (char *)s;
 	i = 0;
-	while (i < n)
-		str[i++] = (unsigned char)c;
+	while (i < count)
+	{
+		*(unsigned char *)(str + i) = (unsigned char) c;
+		i++;
+	}
 	return (str);
 }
+
+// int	main(void)
+// {
+// 	char str[15];
+
+// 	ft_memset(str, 'a', sizeof(char) * 5);
+// 	ft_memset(str + 5, 'b', sizeof(char) * 5);
+// 	ft_memset(str + 10, 'c', sizeof(char) * 5);
+// 	for (int i = 0; i < 15; i ++)
+// 		printf("%c", str[i]);
+// 	printf("\n");
+
+// 	return (0);
+// }

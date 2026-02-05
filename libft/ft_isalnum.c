@@ -3,30 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_isalnum.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/26 15:24:40 by wintoo            #+#    #+#             */
-/*   Updated: 2025/08/27 16:17:58 by wintoo           ###   ########.fr       */
+/*   Created: 2025/08/25 11:09:52 by phonekha          #+#    #+#             */
+/*   Updated: 2025/08/28 17:10:48 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int	ft_isalnum(int c)
+int	ft_isalnum(char c)
 {
-	if (ft_isdigit(c) || ft_isalpha(c))
-		return (8);
-	return (0);
+	return (ft_isalpha(c) || ft_isdigit(c));
 }
-
-// #include <ctype.h>
-// #include <stdio.h>
-
-// int	main(void)
-// {
-// 	char	c;
-
-// 	c = 'J';
-// 	printf("%d\n", ft_isalnum(c));
-// 	printf("%d\n", isalnum(c));
-// }

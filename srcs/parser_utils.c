@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:21:40 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 15:13:10 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/05 11:27:21 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,21 +50,23 @@ void	fill_args(t_cmd *cmd, t_token *tk)
 }
 
 // Assumes syntax is valid (check later)
-void	handle_redir(t_cmd *cmd, t_token *tk)
+void    handle_redir(t_cmd *cmd, t_token *tk)
 {
-	while (tk && tk->type != T_PIPE)
-	{
-		if (tk->type == T_IN && tk->next)
-			cmd->infile = ft_strdup(tk->next->value);
-		else if (tk->type == T_OUT && tk->next)
-			cmd->outfile = ft_strdup(tk->next->value);
-		else if (tk->type == T_APPEND && tk->next)
-		{
-			cmd->outfile = ft_strdup(tk->next->value);
-			cmd->append = 1;
-		}
-		tk = tk->next;
-	}
+    while (tk && tk->type != T_PIPE)
+    {
+        if (tk->type == T_IN && tk->next)
+        {
+            if (cmd->infile) free(cmd->infile);
+            cmd->infile = ft_strdup(tk->next->value);
+        }
+        else if ((tk->type == T_OUT || tk->type == T_APPEND) && tk->next)
+        {
+            if (cmd->outfile) free(cmd->outfile);
+            cmd->outfile = ft_strdup(tk->next->value);
+            cmd->append = (tk->type == T_APPEND);
+        }
+        tk = tk->next;
+    }
 }
 
 t_cmd	*parse_one_cmd(t_token *tk)
@@ -72,6 +74,8 @@ t_cmd	*parse_one_cmd(t_token *tk)
 	t_cmd	*cmd;
 	int		argc;
 
+	if (!tk || tk->type == T_PIPE)
+		return (NULL);
 	cmd = new_cmd();
 	if (!cmd)
 		return (NULL);

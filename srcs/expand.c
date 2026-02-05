@@ -3,162 +3,203 @@
 /*                                                        :::      ::::::::   */
 /*   expand.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/04 17:38:12 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 18:44:43 by wintoo           ###   ########.fr       */
+/*   Created: 2026/02/04 20:07:36 by phonekha          #+#    #+#             */
+/*   Updated: 2026/02/05 13:23:29 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-// char	*env_get(t_env *env, char *key)
-// {
-// 	while (env)
-// 	{
-// 		if (!ft_strncmp(env->key, key, ft_strlen(key)))
-// 			return (env->value);
-// 		env = env->next;
-// 	}
-// 	return (NULL);
-// }
+/* Helper to find a value in your existing linked list */
+char *env_get(t_env *env, char *key)
+{
+    t_env *node;
 
-// void	expand_cmds(t_cmd *cmds, t_shell *sh)
-// {
-// 	while (cmds)
-// 	{
-// 		expand_args(cmds->args, sh);
-// 		expand_redirs(cmds, sh);
-// 		cmds = cmds->next;
-// 	}
-// }
+    node = find_env_node(env, key);
+    if (node)
+        return (node->value);
+    return (NULL);
+}
 
-// void	expand_redirs(t_cmd *cmd, t_shell *sh)
-// {
-// 	if (cmd->infile)
-// 		cmd->infile = expand_str(cmd->infile, sh);
+/* Helper to join strings and free the old buffer */
+char *append_str(char *res, char *to_append)
+{
+    char *new;
 
-// 	if (cmd->outfile)
-// 		cmd->outfile = expand_str(cmd->outfile, sh);
+    if (!to_append)
+        return (res);
+    new = ft_strjoin(res, to_append);
+    free(res);
+    return (new);
+}
 
-// 	// heredoc handled separately
-// }
+/* Helper to join a single character to the buffer */
+char *append_char(char *res, char c)
+{
+    char tmp[2];
 
-// void	expand_args(char **args, t_shell *sh)
-// {
-// 	int	i;
+    tmp[0] = c;
+    tmp[1] = '\0';
+    return (append_str(res, tmp));
+}
 
-// 	i = 0;
-// 	while (args && args[i])
-// 	{
-// 		args[i] = expand_str(args[i], sh);
-// 		i++;
-// 	}
-// }
+char *handle_dollar(char *res, char *s, int *i, t_shell *sh)
+{
+    char    *key;
+    char    *val;
+    int     start;
 
-// char	*expand_str(char *s, t_shell *sh)
-// {
-// 	int		i;
-// 	char	*res;
+    // 1. Lone dollar or dollar at the end
+    if (!s[*i + 1] || s[*i + 1] == ' ' || s[*i + 1] == '\t' || s[*i + 1] == '\0')
+    {
+        res = append_char(res, s[(*i)++]);
+        return (res);
+    }
 
-// 	i = 0;
-// 	res = ft_strdup("");
+    (*i)++; // skip the '$'
+    
+    // 2. Handle Exit Status
+    if (s[*i] == '?')
+    {
+        val = ft_itoa(sh->last_status);
+        res = append_str(res, val);
+        free(val);
+        (*i)++;
+    }
+    // 3. Handle Variable Name (Must start with Alpha or Underscore)
+    else if (ft_isalpha(s[*i]) || s[*i] == '_')
+    {
+        start = *i;
+        // CRITICAL: Ensure we ONLY loop through valid variable characters
+        while (s[*i] && (ft_isalnum(s[*i]) || s[*i] == '_'))
+            (*i)++;
+            
+        key = ft_substr(s, start, *i - start);
+        val = env_get(sh->env, key);
+        free(key);
+        if (val)
+            res = append_str(res, val);
+    }
+    else
+    {
+        // If it's something like "$1", we just put the $ back and 
+        // let the loop continue (or handle it based on your preference)
+        res = append_char(res, '$');
+    }
+    return (res);
+}
 
-// 	while (s[i])
-// 	{
-// 		if (s[i] == '\'')
-// 			res = handle_single_quote(res, s, &i);
+char *handle_single_quote(char *res, char *s, int *i)
+{
+    int j = *i + 1;
 
-// 		else if (s[i] == '"')
-// 			res = handle_double_quote(res, s, &i, sh);
+    // Check if there is a closing quote anywhere later in the string
+    while (s[j] && s[j] != '\'')
+        j++;
 
-// 		else if (s[i] == '$')
-// 			res = handle_dollar(res, s, &i, sh);
+    if (s[j] == '\0') // No closing quote found!
+    {
+        res = append_char(res, s[(*i)++]); // Treat current ' as literal
+        return (res);
+    }
 
-// 		else
-// 			res = append_char(res, s[i++]);
-// 	}
-// 	free(s);
-// 	return (res);
-// }
+    (*i)++; // skip opening '
+    while (*i < j)
+    {
+        res = append_char(res, s[*i]);
+        (*i)++;
+    }
+    (*i)++; // skip closing '
+    return (res);
+}
 
-// char	*handle_single_quote(char *res, char *s, int *i)
-// {
-// 	(*i)++; // skip '
+char *handle_double_quote(char *res, char *s, int *i, t_shell *sh)
+{
+    int j = *i + 1;
 
-// 	while (s[*i] && s[*i] != '\'')
-// 		res = append_char(res, s[(*i)++]);
+    while (s[j] && s[j] != '"')
+        j++;
 
-// 	if (s[*i] == '\'')
-// 		(*i)++;
+    if (s[j] == '\0') // No closing double quote
+    {
+        res = append_char(res, s[(*i)++]);
+        return (res);
+    }
 
-// 	return (res);
-// }
+    (*i)++; // skip "
+    while (*i < j)
+    {
+        if (s[*i] == '$')
+            res = handle_dollar(res, s, i, sh);
+        else
+            res = append_char(res, s[(*i)++]);
+    }
+    (*i)++; // skip "
+    return (res);
+}
 
-// char	*handle_double_quote(char *res, char *s, int *i, t_shell *sh)
-// {
-// 	(*i)++;
+char *expand_str(char *s, t_shell *sh)
+{
+    int     i;
+    char    *res;
 
-// 	while (s[*i] && s[*i] != '"')
-// 	{
-// 		if (s[*i] == '$')
-// 			res = handle_dollar(res, s, i, sh);
-// 		else
-// 			res = append_char(res, s[(*i)++]);
-// 	}
+    if (!s)
+        return (NULL);
+    i = 0;
+    res = ft_strdup("");
+    while (s[i])
+    {
+        if (s[i] == '\'')
+            res = handle_single_quote(res, s, &i);
+        else if (s[i] == '"')
+            res = handle_double_quote(res, s, &i, sh);
+        else if (s[i] == '$')
+            res = handle_dollar(res, s, &i, sh); // handle_dollar must increment i!
+        else
+        {
+            res = append_char(res, s[i]);
+            i++; // Only increment if no handler was called
+        }
+    }
+    free(s);
+    return (res);
+}
 
-// 	if (s[*i] == '"')
-// 		(*i)++;
+void expand_cmds(t_cmd *cmds, t_shell *sh)
+{
+    int i;
+    t_cmd *curr;
 
-// 	return (res);
-// }
-
-// char	*handle_dollar(char *res, char *s, int *i, t_shell *sh)
-// {
-// 	char	*var;
-// 	char	*val;
-// 	int		start;
-
-// 	(*i)++; // skip $
-
-// 	if (s[*i] == '?')
-// 	{
-// 		val = ft_itoa(sh->last_status);
-// 		(*i)++;
-// 	}
-// 	else
-// 	{
-// 		start = *i;
-// 		while (ft_isalnum(s[*i]) || s[*i] == '_')
-// 			(*i)++;
-
-// 		var = ft_substr(s, start, *i - start);
-// 		val = env_get(sh->env, var);
-// 		free(var);
-
-// 		if (!val)
-// 			val = "";
-// 	}
-
-// 	res = append_str(res, val);
-// 	return (res);
-// }
-
-// char	*append_char(char *s, char c)
-// {
-// 	char	tmp[2];
-
-// 	tmp[0] = c;
-// 	tmp[1] = 0;
-
-// 	return (append_str(s, tmp));
-// }
-
-// char	*append_str(char *s1, char *s2)
-// {
-// 	char	*new;
-
-// 	new = ft_strjoin(s1, s2);
-// 	free(s1);
-// 	return (new);
-// }
+    curr = cmds;
+    while (curr)
+    {
+        // 1. Expand Arguments
+        i = 0;
+        while (curr->args && curr->args[i])
+        {
+            curr->args[i] = expand_str(curr->args[i], sh);
+            i++;
+        }
+        // 2. Expand Redirections with Ambiguous Check
+        if (curr->infile)
+        {
+            char *original = curr->infile;
+            curr->infile = expand_str(curr->infile, sh);
+            if (!curr->infile || curr->infile[0] == '\0')
+                fprintf(stderr, "minishell: %s: ambiguous redirect\n", original);
+        }
+        if (curr->outfile)
+        {
+            char *original = curr->outfile;
+            curr->outfile = expand_str(curr->outfile, sh);
+            if (!curr->outfile || curr->outfile[0] == '\0')
+            {
+                fprintf(stderr, "minishell: %s: ambiguous redirect\n", original);
+                sh->last_status = 1; // Mark as error
+            }
+        }
+        curr = curr->next;
+    }
+}

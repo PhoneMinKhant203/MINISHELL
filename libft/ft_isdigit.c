@@ -3,28 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_isdigit.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/26 14:54:14 by wintoo            #+#    #+#             */
-/*   Updated: 2025/08/26 16:06:29 by wintoo           ###   ########.fr       */
+/*   Created: 2025/08/25 11:06:49 by phonekha          #+#    #+#             */
+/*   Updated: 2025/08/28 17:10:56 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-int	ft_isdigit(int c)
+#include "libft.h"
+
+int	ft_isdigit(char c)
 {
-	if (c >= 48 && c <= 57)
-		return (2048);
-	return (0);
+	return ((c >= '0' && c <= '9'));
 }
-
-// #include <ctype.h>
-// #include <stdio.h>
-
-// int	main(void)
-// {
-// 	char	c;
-
-// 	c = 'J';
-// 	printf("%d\n", ft_isdigit(c));
-// 	printf("%d\n", isdigit(c));
-// }
