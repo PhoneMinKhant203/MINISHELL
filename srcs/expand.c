@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 20:07:36 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/05 13:23:29 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 16:00:46 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,20 +47,15 @@ char *append_char(char *res, char c)
 
 char *handle_dollar(char *res, char *s, int *i, t_shell *sh)
 {
-    char    *key;
     char    *val;
     int     start;
 
-    // 1. Lone dollar or dollar at the end
     if (!s[*i + 1] || s[*i + 1] == ' ' || s[*i + 1] == '\t' || s[*i + 1] == '\0')
-    {
-        res = append_char(res, s[(*i)++]);
-        return (res);
-    }
+        return (res = append_char(res, s[(*i)++]));
 
-    (*i)++; // skip the '$'
+    (*i)++; // skip the first '$'
     
-    // 2. Handle Exit Status
+    // 1. Handle Exit Status ($?)
     if (s[*i] == '?')
     {
         val = ft_itoa(sh->last_status);
@@ -68,28 +63,33 @@ char *handle_dollar(char *res, char *s, int *i, t_shell *sh)
         free(val);
         (*i)++;
     }
-    // 3. Handle Variable Name (Must start with Alpha or Underscore)
+    // 2. NEW: Handle Process ID ($$)
+    else if (s[*i] == '$')
+    {
+        // In 42 projects, you can use getpid() if permitted, 
+        // or just a hardcoded dummy number if not.
+        val = ft_itoa(getpid()); 
+        res = append_str(res, val);
+        free(val);
+        (*i)++;
+    }
+    // 3. Handle Variable Name
     else if (ft_isalpha(s[*i]) || s[*i] == '_')
     {
         start = *i;
-        // CRITICAL: Ensure we ONLY loop through valid variable characters
         while (s[*i] && (ft_isalnum(s[*i]) || s[*i] == '_'))
             (*i)++;
-            
-        key = ft_substr(s, start, *i - start);
+        char *key = ft_substr(s, start, *i - start);
         val = env_get(sh->env, key);
         free(key);
         if (val)
             res = append_str(res, val);
     }
     else
-    {
-        // If it's something like "$1", we just put the $ back and 
-        // let the loop continue (or handle it based on your preference)
         res = append_char(res, '$');
-    }
     return (res);
 }
+
 
 char *handle_single_quote(char *res, char *s, int *i)
 {

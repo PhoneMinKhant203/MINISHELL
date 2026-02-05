@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/05 14:48:31 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 16:25:57 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,40 +82,55 @@ void child_exec_binary(t_cmd *cmd, t_shell *sh)
     char        *path;
     char        **env_arr;
     struct stat st;
+    int         i;
 
-    path = find_path(cmd->args[0], sh->env);
+    // 1. Skip over any empty words caused by expansion (e.g., $echo hello)
+    i = 0;
+    while (cmd->args[i] && cmd->args[i][0] == '\0')
+        i++;
+
+    // 2. If everything was empty (e.g., just ""), just exit the child process
+    if (!cmd->args[i])
+        exit(0);
+
+    // 3. Search for the actual command (cmd->args[i])
+    path = find_path(cmd->args[i], sh->env);
+    
     if (!path)
     {
-        // 1. Is a Directory Case
-        if (stat(cmd->args[0], &st) == 0 && S_ISDIR(st.st_mode))
+        // Case A: It's a directory (stat returns 0 if it exists)
+        if (stat(cmd->args[i], &st) == 0 && S_ISDIR(st.st_mode))
         {
             write(2, "minishell: ", 11);
-            write(2, cmd->args[0], ft_strlen(cmd->args[0]));
+            write(2, cmd->args[i], ft_strlen(cmd->args[i]));
             write(2, ": Is a directory\n", 17);
             exit(126);
         }
-        // 2. Path Error Case ($PATH or /bin/wrong)
-        if (ft_strchr(cmd->args[0], '/'))
+        // Case B: It's a path error ($PATH or /bin/wrong)
+        if (ft_strchr(cmd->args[i], '/'))
         {
             write(2, "minishell: ", 11);
-            write(2, cmd->args[0], ft_strlen(cmd->args[0]));
+            write(2, cmd->args[i], ft_strlen(cmd->args[i]));
             write(2, ": No such file or directory\n", 28);
             exit(127);
         }
-        // 3. Command Not Found Case ($USER -> phonekha)
-        // Format: phonekha: command not found
-        write(2, cmd->args[0], ft_strlen(cmd->args[0]));
+        // Case C: Command Not Found (Format: command: command not found)
+        write(2, cmd->args[i], ft_strlen(cmd->args[i]));
         write(2, ": command not found\n", 20);
         exit(127);
     }
     
+    // 4. Prepare Environment Array
     env_arr = env_to_array(sh->env);
-    if (execve(path, cmd->args, env_arr) == -1)
+    
+    // 5. Execute with the shifted pointer &cmd->args[i]
+    if (execve(path, &cmd->args[i], env_arr) == -1)
     {
         perror("minishell: execve");
         exit(126);
     }
 }
+
 
 void wait_all_children(t_shell *sh)
 {

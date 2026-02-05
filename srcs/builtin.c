@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:06:31 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/04 20:55:45 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 16:28:07 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,23 +59,26 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-int	exec_builtin(char **args, t_env **env_copy)
+int exec_builtin(char **args, t_env **env_copy)
 {
-	if (ft_strncmp(args[0], "echo", 5) == 0)
-		return (mini_echo(args));
-	if (ft_strncmp(args[0], "pwd", 4) == 0)
-		return (mini_pwd());
-	if (ft_strncmp(args[0], "cd", 3) == 0)
-		return (mini_cd(args));
-	if (ft_strncmp(args[0], "env", 4) == 0)
-		return (mini_env(*env_copy));
-	if (ft_strncmp(args[0], "export", 7) == 0)
-		return (mini_export(args, env_copy));
-	if (ft_strncmp(args[0], "unset", 6) == 0)
-		return (mini_unset(args, env_copy));
-	if (ft_strncmp(args[0], "exit", 5) == 0)
-		mini_exit(args);
-	return (0);
+    // Safety check: if after shifting we still have no args
+    if (!args || !args[0])
+        return (0);
+    if (ft_strncmp(args[0], "echo", 5) == 0)
+        return (mini_echo(args));
+    if (ft_strncmp(args[0], "pwd", 4) == 0)
+        return (mini_pwd());
+    if (ft_strncmp(args[0], "cd", 3) == 0)
+        return (mini_cd(args, env_copy)); // Fixed: added env_copy
+    if (ft_strncmp(args[0], "env", 4) == 0)
+        return (mini_env(*env_copy));
+    if (ft_strncmp(args[0], "export", 7) == 0)
+        return (mini_export(args, env_copy));
+    if (ft_strncmp(args[0], "unset", 6) == 0)
+        return (mini_unset(args, env_copy));
+    if (ft_strncmp(args[0], "exit", 5) == 0)
+        mini_exit(args);
+    return (0);
 }
 
 

@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 21:14:37 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 16:26:56 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ void	free_tokens(t_token *tok);
 int		is_builtin(char *cmd);
 int		exec_builtin(char **args, t_env **env_copy);
 t_env	*init_env(char **envp);
-int		mini_cd(char **args);
+int 	mini_cd(char **args, t_env **env);
 int		mini_echo(char **args);
 int		mini_pwd(void);
 int		mini_env(t_env *env);
