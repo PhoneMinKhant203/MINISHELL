@@ -6,11 +6,41 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 17:07:58 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 21:14:22 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 14:18:24 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+static int fork_and_execute(char *path, t_cmd *cmd, t_env *env_list)
+{
+    pid_t   pid;
+    int     status;
+    char    **env_arr;
+
+    env_arr = env_to_array(env_list);
+    pid = fork();
+    if (pid == -1)
+    {
+        free(path);
+        free2p(env_arr);
+        return (perror("minishell: fork"), 1);
+    }
+    if (pid == 0)
+    {
+        if (setup_redirection(cmd) == -1)
+            exit(1);
+        if (execve(path, cmd->args, env_arr) == -1)
+        {
+            perror("minishell: execve");
+            exit(126);
+        }
+    }
+    waitpid(pid, &status, 0);
+    free(path);
+    free2p(env_arr);
+    return (WIFEXITED(status) ? WEXITSTATUS(status) : 1);
+}
 
 int execute_cmds(t_cmd *cmds, t_shell *sh)
 {
@@ -34,55 +64,63 @@ int execute_cmds(t_cmd *cmds, t_shell *sh)
     return (sh->last_status);
 }
 
-static int	env_list_size(t_env *env)
-{
-	int	i;
+// static int	env_list_size(t_env *env)
+// {
+// 	int	i;
 
-	i = 0;
-	while (env)
-	{
-		i++;
-		env = env->next;
-	}
-	return (i);
+// 	i = 0;
+// 	while (env)
+// 	{
+// 		i++;
+// 		env = env->next;
+// 	}
+// 	return (i);
+// }
+
+char **env_to_array(t_env *env)
+{
+    char    **envp;
+    int     i;
+    char    *tmp;
+    t_env   *curr;
+
+    i = 0;
+    curr = env;
+    while (curr && ++i)
+        curr = curr->next;
+    envp = malloc(sizeof(char *) * (i + 1));
+    if (!envp)
+        return (NULL);
+    i = 0;
+    while (env)
+    {
+        tmp = ft_strjoin(env->key, "=");
+        if (!tmp)
+            return (free2p(envp), NULL); // Clean up if key join fails
+        envp[i] = ft_strjoin(tmp, env->value);
+        free(tmp);
+        if (!envp[i])
+            return (free2p(envp), NULL); // Clean up if value join fails
+        i++;
+        env = env->next;
+    }
+    envp[i] = NULL;
+    return (envp);
 }
 
-char	**env_to_array(t_env *env)
-{
-	char	**envp;
-	int		i;
-	char	*tmp;
-
-	envp = malloc(sizeof(char *) * (env_list_size(env) + 1));
-	if (!envp)
-		return (NULL);
-	i = 0;
-	while (env)
-	{
-		tmp = ft_strjoin(env->key, "="); 		// Join: KEY + "=" + VALUE
-		envp[i] = ft_strjoin(tmp, env->value);
-		free(tmp);
-		i++;
-		env = env->next;
-	}
-	envp[i] = NULL;
-	return (envp);
-}
-
-char    *find_path(char *cmd, t_env *env_list)
+char *find_path(char *cmd, t_env *env_list)
 {
     char    **dirs;
     t_env   *node;
     char    *full;
-    char    *path_with_slash;
-    struct stat st; // Buffer to hold file information
+    char    *tmp;
+    struct stat st;
     int     i;
 
     if (!cmd || !*cmd)
         return (NULL);
     if (ft_strchr(cmd, '/'))
     {
-        // Check if it's a file AND executable
         if (stat(cmd, &st) == 0 && S_ISREG(st.st_mode) && access(cmd, X_OK) == 0)
             return (ft_strdup(cmd));
         return (NULL);
@@ -91,15 +129,12 @@ char    *find_path(char *cmd, t_env *env_list)
     if (!node || !node->value)
         return (NULL);
     dirs = ft_split(node->value, ':');
-    if (!dirs)
-        return (NULL);
     i = -1;
-    while (dirs[++i])
+    while (dirs && dirs[++i])
     {
-        path_with_slash = ft_strjoin(dirs[i], "/");
-        full = ft_strjoin(path_with_slash, cmd);
-        free(path_with_slash);
-        // Check stat to ensure it's not a directory
+        tmp = ft_strjoin(dirs[i], "/");
+        full = ft_strjoin(tmp, cmd);
+        free(tmp);
         if (stat(full, &st) == 0 && S_ISREG(st.st_mode) && access(full, X_OK) == 0)
         {
             free2p(dirs);
@@ -111,47 +146,39 @@ char    *find_path(char *cmd, t_env *env_list)
     return (NULL);
 }
 
+
+
 int exe_cmd(t_cmd *cmd, t_env *env_list)
 {
-    pid_t   pid;
-    char    *path;
-    char    **custom_envp;
-    int     status;
+    char        *path;
+    struct stat st;
 
     if (!cmd || !cmd->args || !cmd->args[0])
         return (0);
 
     path = find_path(cmd->args[0], env_list);
-    if (!path)
+    
+	if (!path)
     {
-        ft_putstr_fd("minishell: command not found: ", 2);
-        ft_putendl_fd(cmd->args[0], 2);
+        if (stat(cmd->args[0], &st) == 0 && S_ISDIR(st.st_mode))
+        {
+            write(2, "minishell: ", 11);
+            write(2, cmd->args[0], ft_strlen(cmd->args[0]));
+            write(2, ": Is a directory\n", 17);
+            return (126);
+        }
+        if (ft_strchr(cmd->args[0], '/'))
+        {
+            write(2, "minishell: ", 11);
+            write(2, cmd->args[0], ft_strlen(cmd->args[0]));
+            write(2, ": No such file or directory\n", 28);
+            return (127);
+        }
+        write(2, "minishell: ", 11);
+        write(2, cmd->args[0], ft_strlen(cmd->args[0]));
+        write(2, ": command not found\n", 20);
         return (127);
     }
-
-    custom_envp = env_to_array(env_list);
-
-    pid = fork();
-    if (pid == -1)
-        return (perror("fork"), 1);
-    if (pid == 0)
-    {
-        // Now you can pass 'cmd' to setup_redirection!
-        if (setup_redirection(cmd) == -1)
-            exit(1);
-        
-        if (execve(path, cmd->args, custom_envp) == -1)
-        {
-            perror("execve");
-            exit(126);
-        }
-    }
-
-    waitpid(pid, &status, 0);
-    free(path);
-    free2p(custom_envp); // This solves the memory leak!
-
-    if (WIFEXITED(status))
-        return (WEXITSTATUS(status));
-    return (1);
+    return (fork_and_execute(path, cmd, env_list));
 }
+

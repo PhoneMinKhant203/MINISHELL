@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cmd_executrion.c                                   :+:      :+:    :+:   */
+/*   cmd_execution.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/04 21:09:56 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 14:21:03 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,16 +79,36 @@ void start_executor(t_cmd *cmds, t_shell *sh)
 
 void child_exec_binary(t_cmd *cmd, t_shell *sh)
 {
-    char    *path;
-    char    **env_arr;
+    char        *path;
+    char        **env_arr;
+    struct stat st;
 
     path = find_path(cmd->args[0], sh->env);
     if (!path)
     {
-        ft_putstr_fd("minishell: command not found: ", 2);
-        ft_putendl_fd(cmd->args[0], 2);
+        // 1. Check if it's a directory
+        if (stat(cmd->args[0], &st) == 0 && S_ISDIR(st.st_mode))
+        {
+            write(2, "minishell: ", 11);
+            write(2, cmd->args[0], ft_strlen(cmd->args[0]));
+            write(2, ": Is a directory\n", 17);
+            exit(126);
+        }
+        // 2. Check if it's a path error (THE FIX FOR $PATH)
+        if (ft_strchr(cmd->args[0], '/'))
+        {
+            write(2, "minishell: ", 11);
+            write(2, cmd->args[0], ft_strlen(cmd->args[0]));
+            write(2, ": No such file or directory\n", 28);
+            exit(127);
+        }
+        // 3. Default command not found
+        write(2, "minishell: command not found: ", 30);
+        write(2, cmd->args[0], ft_strlen(cmd->args[0]));
+        write(2, "\n", 1);
         exit(127);
     }
+    
     env_arr = env_to_array(sh->env);
     if (execve(path, cmd->args, env_arr) == -1)
     {
