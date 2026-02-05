@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 20:07:36 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/04 20:56:50 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 13:23:29 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,10 +51,10 @@ char *handle_dollar(char *res, char *s, int *i, t_shell *sh)
     char    *val;
     int     start;
 
-    // 1. Check if it's just a '$' at the very end of the string
-    if (!s[*i + 1] || s[*i + 1] == ' ' || s[*i + 1] == '\t')
+    // 1. Lone dollar or dollar at the end
+    if (!s[*i + 1] || s[*i + 1] == ' ' || s[*i + 1] == '\t' || s[*i + 1] == '\0')
     {
-        res = append_char(res, s[(*i)++]); // Append '$' and move past it
+        res = append_char(res, s[(*i)++]);
         return (res);
     }
 
@@ -68,56 +68,75 @@ char *handle_dollar(char *res, char *s, int *i, t_shell *sh)
         free(val);
         (*i)++;
     }
-    // 3. Handle Variable Name
+    // 3. Handle Variable Name (Must start with Alpha or Underscore)
     else if (ft_isalpha(s[*i]) || s[*i] == '_')
     {
         start = *i;
+        // CRITICAL: Ensure we ONLY loop through valid variable characters
         while (s[*i] && (ft_isalnum(s[*i]) || s[*i] == '_'))
             (*i)++;
+            
         key = ft_substr(s, start, *i - start);
         val = env_get(sh->env, key);
         free(key);
         if (val)
             res = append_str(res, val);
     }
-    // 4. Case where it's something like "$123" or "$@" 
     else
     {
+        // If it's something like "$1", we just put the $ back and 
+        // let the loop continue (or handle it based on your preference)
         res = append_char(res, '$');
-        // We don't increment 'i' here because the main loop 
-        // will process the current character s[*i]
     }
     return (res);
 }
 
 char *handle_single_quote(char *res, char *s, int *i)
 {
-    (*i)++; // skip '
-    while (s[*i] && s[*i] != '\'')
+    int j = *i + 1;
+
+    // Check if there is a closing quote anywhere later in the string
+    while (s[j] && s[j] != '\'')
+        j++;
+
+    if (s[j] == '\0') // No closing quote found!
+    {
+        res = append_char(res, s[(*i)++]); // Treat current ' as literal
+        return (res);
+    }
+
+    (*i)++; // skip opening '
+    while (*i < j)
     {
         res = append_char(res, s[*i]);
         (*i)++;
     }
-    if (s[*i] == '\'')
-        (*i)++;
+    (*i)++; // skip closing '
     return (res);
 }
 
 char *handle_double_quote(char *res, char *s, int *i, t_shell *sh)
 {
+    int j = *i + 1;
+
+    while (s[j] && s[j] != '"')
+        j++;
+
+    if (s[j] == '\0') // No closing double quote
+    {
+        res = append_char(res, s[(*i)++]);
+        return (res);
+    }
+
     (*i)++; // skip "
-    while (s[*i] && s[*i] != '"')
+    while (*i < j)
     {
         if (s[*i] == '$')
             res = handle_dollar(res, s, i, sh);
         else
-        {
-            res = append_char(res, s[*i]);
-            (*i)++;
-        }
+            res = append_char(res, s[(*i)++]);
     }
-    if (s[*i] == '"')
-        (*i)++;
+    (*i)++; // skip "
     return (res);
 }
 
@@ -129,7 +148,7 @@ char *expand_str(char *s, t_shell *sh)
     if (!s)
         return (NULL);
     i = 0;
-    res = ft_strdup(""); // Start with empty string
+    res = ft_strdup("");
     while (s[i])
     {
         if (s[i] == '\'')
@@ -137,11 +156,14 @@ char *expand_str(char *s, t_shell *sh)
         else if (s[i] == '"')
             res = handle_double_quote(res, s, &i, sh);
         else if (s[i] == '$')
-            res = handle_dollar(res, s, &i, sh);
+            res = handle_dollar(res, s, &i, sh); // handle_dollar must increment i!
         else
-            res = append_char(res, s[i++]);
+        {
+            res = append_char(res, s[i]);
+            i++; // Only increment if no handler was called
+        }
     }
-    free(s); // Free the original unexpanded string
+    free(s);
     return (res);
 }
 

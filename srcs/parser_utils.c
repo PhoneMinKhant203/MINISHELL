@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:21:40 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 20:52:30 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 11:27:21 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ t_cmd	*parse_one_cmd(t_token *tk)
 	t_cmd	*cmd;
 	int		argc;
 
+	if (!tk || tk->type == T_PIPE)
+		return (NULL);
 	cmd = new_cmd();
 	if (!cmd)
 		return (NULL);

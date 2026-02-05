@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:56:25 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 20:05:33 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/05 12:21:35 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,11 @@ static void	process_input(char *line, t_shell *sh)
 		return ;
 	// 1. Expansion (handling $VAR) happens here
 	expand_cmds(cmds, sh);	
+	if (!cmds || !cmds->args || !cmds->args[0] || cmds->args[0][0] == '\0')
+	{
+		free_cmds(cmds);
+		return ;
+	}
 	// 2. Execution Engine runs here
 	// If it's one command and a builtin, run it in the parent.
 	// If it's a binary (ls) or has pipes, run in children.
