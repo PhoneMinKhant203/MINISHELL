@@ -1,20 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_iswhitespace.c                                  :+:      :+:    :+:   */
+/*   env_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/25 16:08:41 by phonekha          #+#    #+#             */
-/*   Updated: 2025/09/25 16:09:05 by phonekha         ###   ########.fr       */
+/*   Created: 2026/02/06 17:31:27 by wintoo            #+#    #+#             */
+/*   Updated: 2026/02/06 17:34:32 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../minishell.h"
 
-int	ft_iswhitespace(int c)
+char	*env_get(t_env *env, char *key)
 {
-	if (c == 32 || (c >= 9 && c <= 13))
-		return (1);
-	return (0);
+	t_env	*node;
+
+	node = find_env_node(env, key);
+	if (node)
+		return (node->value);
+	return (NULL);
 }

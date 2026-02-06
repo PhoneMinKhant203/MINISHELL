@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:48:11 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/05 13:28:32 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/06 13:37:10 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,27 +26,26 @@ int	is_operator(char c)
 	return (c == '|' || c == '<' || c == '>');
 }
 
-char    *get_word(char *s, int *i)
+char	*get_word(char *s, int *i)
 {
-    int     start;
-    char    quote;
+	int		start;
+	char	quote;
 
-    start = *i;
-    while (s[*i] && s[*i] != ' ' && !is_operator(s[*i]))
-    {
-        if (s[*i] == '\'' || s[*i] == '"')
-        {
-            quote = s[(*i)++];
-            // Move until closing quote OR end of string
-            while (s[*i] && s[*i] != quote)
-                (*i)++;
-            if (s[*i] == quote)
-                (*i)++;
-        }
-        else
-            (*i)++;
-    }
-    return (ft_substr(s, start, *i - start));
+	start = *i;
+	while (s[*i] && s[*i] != ' ' && !is_operator(s[*i]))
+	{
+		if (s[*i] == '\'' || s[*i] == '"')
+		{
+			quote = s[(*i)++];
+			while (s[*i] && s[*i] != quote)
+				(*i)++;
+			if (s[*i] == quote)
+				(*i)++;
+		}
+		else
+			(*i)++;
+	}
+	return (ft_substr(s, start, *i - start));
 }
 
 t_token	*get_token(char *s, int *i)

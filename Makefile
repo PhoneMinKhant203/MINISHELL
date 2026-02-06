@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+         #
+#    By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/17 12:54:11 by wintoo            #+#    #+#              #
-#    Updated: 2026/02/04 21:10:50 by phonekha         ###   ########.fr        #
+#    Updated: 2026/02/06 17:31:49 by wintoo           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ SRCS	= srcs/main.c srcs/signals.c srcs/lexer.c srcs/free.c srcs/error.c \
 		srcs/built_in/mini_echo.c srcs/built_in/mini_env.c srcs/built_in/mini_pwd.c \
 		srcs/built_in/mini_unset.c srcs/built_in/mini_export.c srcs/built_in/mini_exit.c \
 		srcs/parser.c srcs/parser_utils.c srcs/lexer_utils.c srcs/redirection.c \
-		srcs/expand.c srcs/heredoc.c srcs/cmd_execution.c
+		srcs/expand.c srcs/expand_utils.c srcs/env_utils.c srcs/heredoc.c srcs/cmd_execution.c
 
 OBJS	= $(SRCS:.c=.o)
 

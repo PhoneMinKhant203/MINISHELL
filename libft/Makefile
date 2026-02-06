@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+         #
+#    By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/08/25 11:41:48 by phonekha          #+#    #+#              #
-#    Updated: 2026/02/03 09:13:15 by phonekha         ###   ########.fr        #
+#    Updated: 2026/02/06 16:12:34 by wintoo           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ SRCS 	= ft_atoi.c ft_bzero.c ft_calloc.c ft_isalnum.c ft_isalpha.c ft_isascii.c 
 		ft_strdup.c ft_strlcat.c ft_strlcpy.c ft_strlen.c ft_strncmp.c ft_strnstr.c ft_strrchr.c \
 		ft_tolower.c ft_toupper.c ft_substr.c ft_strtrim.c ft_strjoin.c ft_split.c ft_itoa.c \
 		ft_strmapi.c ft_striteri.c ft_putchar_fd.c ft_putendl_fd.c ft_putnbr_fd.c ft_putstr_fd.c \
-		free_char_double_pointer.c ft_iswhitespace.c get_next_line.c
+		free_char_double_pointer.c ft_isspace.c get_next_line.c
 OBJS 	= $(SRCS:.c=.o)
 RM 		= rm -f
 AR		= ar csr

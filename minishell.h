@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 21:14:37 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/06 18:18:56 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,21 +19,21 @@
 # include <signal.h>
 # include <stdbool.h>
 # include <errno.h>
-#include <sys/stat.h>
+# include <sys/stat.h>
 # include <sys/wait.h>
 # include "libft/libft.h"
 # include <readline/readline.h>
 # include <readline/history.h>
-#include <fcntl.h>
+# include <fcntl.h>
 
 typedef struct s_cmd
 {
-    char			**args;
-    char			*infile;
+	char			**args;
+	char			*infile;
 	char			*outfile;
 	int				append;
 	char			*heredoc;
-    struct s_cmd	*next;
+	struct s_cmd	*next;
 }	t_cmd;
 
 typedef enum e_tktype
@@ -53,7 +53,7 @@ typedef struct s_token
 	struct s_token	*next;
 }	t_token;
 
-typedef struct	s_env
+typedef struct s_env
 {
 	char			*key;
 	char			*value;
@@ -65,7 +65,6 @@ typedef struct s_shell
 	t_env	*env;
 	int		last_status;
 }	t_shell;
-
 
 extern volatile sig_atomic_t	g_signal;
 
@@ -91,12 +90,13 @@ void	free2p(char **s);
 void	free1p(char **s);
 void	free_cmds(t_cmd *cmd);
 void	free_tokens(t_token *tok);
+int		print_err(char *cmd, char mode);
 
 //Built in
 int		is_builtin(char *cmd);
 int		exec_builtin(char **args, t_env **env_copy);
 t_env	*init_env(char **envp);
-int		mini_cd(char **args);
+int		mini_cd(char **args, t_env **env);
 int		mini_echo(char **args);
 int		mini_pwd(void);
 int		mini_env(t_env *env);
@@ -112,15 +112,13 @@ t_env	*copy_env_list(t_env *env);
 void	free_env_list(t_env *env);
 
 //Expand
-void expand_cmds(t_cmd *cmds, t_shell *sh);
-char *env_get(t_env *env, char *key);
-char *append_str(char *res, char *to_append);
-char *append_char(char *res, char c);
-char *handle_dollar(char *res, char *s, int *i, t_shell *sh);
-char *handle_single_quote(char *res, char *s, int *i);
-char *handle_double_quote(char *res, char *s, int *i, t_shell *sh);
-char *expand_str(char *s, t_shell *sh);
-void expand_cmds(t_cmd *cmds, t_shell *sh);
+char	*env_get(t_env *env, char *key);
+char	*append_str(char *s, char *to_append);
+char	*append_char(char *res, char c);
+void	handle_dollar(char **res, char *s, int *i, t_shell *sh);
+void	handle_quote(char **res, char *s, int *i, t_shell *sh);
+char	*expand_str(char *s, t_shell *sh);
+void	expand_cmds(t_cmd *cmds, t_shell *sh);
 
 //Redirection
 int		setup_redirection(t_cmd *cmd);
@@ -132,19 +130,18 @@ void	setup_signals(void);
 //Free
 void	free2p(char **s);
 void	free_tokens(t_token *tok);
-void    free_cmds(t_cmd *cmd);
+void	free_cmds(t_cmd *cmd);
 void	free1p(char **s);
 
 //CMD_Execution
-void start_executor(t_cmd *cmds, t_shell *sh);
-void child_exec_binary(t_cmd *cmd, t_shell *sh);
-void wait_all_children(t_shell *sh);
+void	start_executor(t_cmd *cmds, t_shell *sh);
+void	child_exec_binary(t_cmd *cmd, t_shell *sh);
+void	wait_all_children(t_shell *sh);
 
 //Execucator
 char	**env_to_array(t_env *env);
 char	*find_path(char *cmd, t_env *env_list);
-int 	exe_cmd(t_cmd *cmd, t_env *env_list);
+int		exe_cmd(t_cmd *cmd, t_env *env_list);
 int		execute_cmds(t_cmd *cmds, t_shell *sh);
-
 
 #endif

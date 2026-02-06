@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:56:25 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/05 12:21:35 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/06 13:39:47 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,26 +16,22 @@ static void	process_input(char *line, t_shell *sh)
 {
 	t_token	*tokens;
 	t_cmd	*cmds;
+	int		i;
 
 	tokens = tokenize(line);
 	if (!tokens)
 		return ;
 	cmds = parse(tokens);
-	free_tokens(tokens); // Tokens aren't needed once we have cmds
+	free_tokens(tokens);
 	if (!cmds)
 		return ;
-	// 1. Expansion (handling $VAR) happens here
-	expand_cmds(cmds, sh);	
-	if (!cmds || !cmds->args || !cmds->args[0] || cmds->args[0][0] == '\0')
-	{
-		free_cmds(cmds);
-		return ;
-	}
-	// 2. Execution Engine runs here
-	// If it's one command and a builtin, run it in the parent.
-	// If it's a binary (ls) or has pipes, run in children.
+	expand_cmds(cmds, sh);
+	i = 0;
+	while (cmds->args && cmds->args[i] && cmds->args[i][0] == '\0')
+		i++;
+	if (!cmds->args || !cmds->args[i])
+		return (free_cmds(cmds));
 	sh->last_status = execute_cmds(cmds, sh);
-	
 	free_cmds(cmds);
 }
 
