@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/06 13:42:47 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/06 17:32:41 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/07 15:24:10 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ static void	handle_special(char **rs, char *s, int *i, t_shell *sh)
 	if (s[*i] == '?')
 		val = ft_itoa(sh->last_status);
 	else if (s[*i] == '$')
-		val = ft_itoa(getpid());
+		val = ft_strdup("4242");
 	if (val)
 	{
 		*rs = append_str(*rs, val);

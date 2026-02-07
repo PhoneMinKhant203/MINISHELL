@@ -3,24 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   mini_env.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:22:34 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/04 11:49:34 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/07 16:49:39 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
 
-int		mini_env(t_env *env)
+int	mini_env(t_env *env)
 {
-    while (env)
-    {
-        if (env->value)
-            printf("%s=%s\n", env->key, env->value);
-        env = env->next;
-    }
-    return (0);
+	while (env)
+	{
+		if (env->value)
+			printf("%s=%s\n", env->key, env->value);
+		env = env->next;
+	}
+	return (0);
 }
 
 t_env	*copy_env_list(t_env *env)
@@ -46,35 +46,21 @@ t_env	*copy_env_list(t_env *env)
 	return (new_list);
 }
 
-void	free_env_list(t_env *env)
+void	print_sorted_env(t_env *env)
 {
+	t_env	*copy;
 	t_env	*tmp;
 
-	while (env)
+	copy = copy_env_list(env);
+	sort_env_list(copy);
+	tmp = copy;
+	while (tmp)
 	{
-		tmp = env->next;
-		free(env->key);
-		free(env->value);
-		free(env);
-		env = tmp;
+		printf("declare -x %s", tmp->key);
+		if (tmp->value)
+			printf("=\"%s\"", tmp->value);
+		printf("\n");
+		tmp = tmp->next;
 	}
-}
-
-void print_sorted_env(t_env *env)
-{
-    t_env *copy;
-    t_env *tmp;
-
-    copy = copy_env_list(env);
-    sort_env_list(copy);
-    tmp = copy;
-    while (tmp)
-    {
-        printf("declare -x %s", tmp->key);
-        if (tmp->value)
-            printf("=\"%s\"", tmp->value);
-        printf("\n");
-        tmp = tmp->next;
-    }
-    free_env_list(copy);
+	free_env(copy);
 }

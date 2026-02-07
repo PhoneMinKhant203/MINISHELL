@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_execution.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/05 16:48:32 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/07 18:07:14 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void start_executor(t_cmd *cmds, t_shell *sh)
 
             // Execute using the shifted index 'i'
             if (is_builtin(cmds->args[i]))
-                exit(exec_builtin(&cmds->args[i], &sh->env));
+                exit(exe_builtin(&cmds->args[i], sh));
             else
                 child_exec_binary(cmds, sh);
             // --- THE SHIFT FIX END ---

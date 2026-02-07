@@ -6,46 +6,11 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:06:31 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/06 13:37:33 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/07 18:03:44 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-t_env	*init_env(char **envp)
-{
-    t_env	*head;
-    t_env	*new;
-    int		i;
-    char	*sep;
-
-    head = NULL;
-    i = -1;
-    while (envp[++i])
-    {
-		sep = ft_strchr(envp[i], '=');
-        if (sep)
-        {
-            new = malloc(sizeof(t_env));
-            new->key = ft_substr(envp[i], 0, sep - envp[i]);
-            new->value = ft_strdup(sep + 1);
-            new->next = head;
-            head = new;
-        }
-    }
-    return (head);
-}
-
-t_env	*find_env_node(t_env *env, char *key)
-{
-	while (env)
-	{
-		if (ft_strncmp(env->key, key, ft_strlen(key) + 1) == 0)
-			return (env);
-		env = env->next;
-	}
-	return (NULL);
-}
 
 int	is_builtin(char *cmd)
 {
@@ -59,24 +24,24 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-int exec_builtin(char **args, t_env **env_copy)
+//changed arg from t_env **env_copy to t_shell *sh
+int	exe_builtin(char **args, t_shell *sh)
 {
-    // Safety check: if after shifting we still have no args
-    if (!args || !args[0])
-        return (0);
-    if (ft_strncmp(args[0], "echo", 5) == 0)
-        return (mini_echo(args));
-    if (ft_strncmp(args[0], "pwd", 4) == 0)
-        return (mini_pwd());
-    if (ft_strncmp(args[0], "cd", 3) == 0)
-        return (mini_cd(args, env_copy)); // Fixed: added env_copy
-    if (ft_strncmp(args[0], "env", 4) == 0)
-        return (mini_env(*env_copy));
-    if (ft_strncmp(args[0], "export", 7) == 0)
-        return (mini_export(args, env_copy));
-    if (ft_strncmp(args[0], "unset", 6) == 0)
-        return (mini_unset(args, env_copy));
-    if (ft_strncmp(args[0], "exit", 5) == 0)
-        mini_exit(args);
-    return (0);
+	if (!args || !args[0])
+		return (0);
+	if (ft_strncmp(args[0], "echo", 5) == 0)
+		return (mini_echo(args));
+	if (ft_strncmp(args[0], "pwd", 4) == 0)
+		return (mini_pwd());
+	if (ft_strncmp(args[0], "cd", 3) == 0)
+		return (mini_cd(args, &sh->env));
+	if (ft_strncmp(args[0], "env", 4) == 0)
+		return (mini_env(sh->env));
+	if (ft_strncmp(args[0], "export", 7) == 0)
+		return (mini_export(args, &sh->env));
+	if (ft_strncmp(args[0], "unset", 6) == 0)
+		return (mini_unset(args, &sh->env));
+	if (ft_strncmp(args[0], "exit", 5) == 0)
+		mini_exit(args, sh);
+	return (0);
 }

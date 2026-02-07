@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 15:05:50 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/06 13:38:36 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/07 16:33:55 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,15 @@ void	free2p(char **s)
 		i++;
 	}
 	free(s);
+}
+
+void	free1p(char **s)
+{
+	if (s && *s)
+	{
+		free(*s);
+		*s = NULL;
+	}
 }
 
 void	free_tokens(t_token *tok)
@@ -61,11 +70,18 @@ void	free_cmds(t_cmd *cmd)
 	}
 }
 
-void	free1p(char **s)
+void	free_env(t_env *env)
 {
-	if (s && *s)
+	t_env	*tmp;
+
+	while (env)
 	{
-		free(*s);
-		*s = NULL;
+		tmp = env->next;
+		if (env->key)
+			free(env->key);
+		if (env->value)
+			free(env->value);
+		free(env);
+		env = tmp;
 	}
 }
