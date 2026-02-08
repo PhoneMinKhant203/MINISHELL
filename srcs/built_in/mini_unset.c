@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:44:02 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/07 18:30:17 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/08 18:15:41 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	mini_unset(char **args, t_env **env)
 	int		i;
 
 	i = 0;
-	while (args[i++])
+	while (args[++i])
 	{
 		curr = *env;
 		prev = NULL;

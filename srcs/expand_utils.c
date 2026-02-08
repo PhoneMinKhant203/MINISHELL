@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/06 13:42:47 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/07 15:24:10 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/08 17:46:38 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ char	*append_str(char *s, char *to_append)
 	if (!to_append)
 		return (s);
 	new = ft_strjoin(s, to_append);
-	free1p(&s);
+	free(s);
 	return (new);
 }
 
@@ -53,27 +53,28 @@ void	handle_dollar(char **res, char *s, int *i, t_shell *sh)
 {
 	int		start;
 	char	*key;
+	char	*val;
 
-	if (!s[*i + 1] || ft_isspace(s[*i + 1]) || s[*i + 1] == '\"')
+	if (!s[*i + 1] || ft_isspace(s[*i + 1])
+		|| s[*i + 1] == '\'' || s[*i + 1] == '\"')
 		return ((void)(*res = append_char(*res, s[(*i)++])));
 	(*i)++;
 	if (s[*i] == '?' || s[*i] == '$')
 		return (handle_special(res, s, i, sh));
-	if (s[*i] == '0')
+	if (s[*i] == '0' || ft_isdigit(s[*i]))
 	{
-		*res = append_str(*res, ft_strdup("minishell"));
+		if (s[*i] == '0')
+			*res = append_str(*res, "minishell");
 		return ((void)(*i)++);
 	}
-	if (ft_isdigit(s[*i]))
-		return ((void)(*i)++);
 	start = *i;
 	while (s[*i] && (ft_isalnum(s[*i]) || s[*i] == '_'))
 		(*i)++;
 	key = ft_substr(s, start, *i - start);
-	*res = append_str(*res, env_get(sh->env, key));
+	val = env_get(sh->env, key);
+	if (val)
+		*res = append_str(*res, val);
 	free1p(&key);
-	if (!(ft_isalnum(s[*i]) || s[*i] == '_'))
-		*res = append_char(*res, '$');
 }
 
 void	handle_quote(char **res, char *s, int *i, t_shell *sh)
