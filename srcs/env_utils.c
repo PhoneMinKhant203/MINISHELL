@@ -6,37 +6,11 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/06 17:31:27 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/07 16:46:22 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/08 15:52:46 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-t_env	*init_env(char **envp)
-{
-	t_env	*head;
-	t_env	*new;
-	char	*sep;
-	int		i;
-
-	head = NULL;
-	i = -1;
-	while (envp && envp[++i])
-	{
-		sep = ft_strchr(envp[i], '=');
-		if (sep)
-		{
-			new = malloc(sizeof(t_env));
-			if (!new)
-				return (NULL);
-			new->key = ft_substr(envp[i], 0, sep - envp[i]);
-			new->value = ft_strdup(sep + 1);
-			new->next = head;
-			head = new;
-		}
-	}
-	return (head);
-}
 
 t_env	*find_env_node(t_env *env, char *key)
 {

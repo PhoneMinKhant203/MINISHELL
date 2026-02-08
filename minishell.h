@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/07 18:06:31 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/08 16:50:17 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,18 @@ void	free1p(char **s);
 void	free_cmds(t_cmd *cmd);
 void	free_tokens(t_token *tok);
 void	free_env(t_env *env);
-int		print_err(char *cmd, char mode);
+void	print_err(char *arg, char *cmd, char *msg);
+void	exe_error(char *cmd);
+
+//Expand
+t_env	*new_env_node(char *key, char *value);
+char	*env_get(t_env *env, char *key);
+char	*append_str(char *s, char *to_append);
+char	*append_char(char *res, char c);
+void	handle_dollar(char **res, char *s, int *i, t_shell *sh);
+void	handle_quote(char **res, char *s, int *i, t_shell *sh);
+char	*expand_str(char *s, t_shell *sh);
+void	expand_cmds(t_cmd *cmds, t_shell *sh);
 
 //Built in
 int		is_builtin(char *cmd);
@@ -110,15 +121,6 @@ int		is_valid_var_name(char *str);
 void	sort_env_list(t_env *head);
 void	print_sorted_env(t_env *env);
 t_env	*copy_env_list(t_env *env);
-
-//Expand
-char	*env_get(t_env *env, char *key);
-char	*append_str(char *s, char *to_append);
-char	*append_char(char *res, char c);
-void	handle_dollar(char **res, char *s, int *i, t_shell *sh);
-void	handle_quote(char **res, char *s, int *i, t_shell *sh);
-char	*expand_str(char *s, t_shell *sh);
-void	expand_cmds(t_cmd *cmds, t_shell *sh);
 
 //Redirection
 int		setup_redirection(t_cmd *cmd);

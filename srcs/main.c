@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:56:25 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/07 17:37:33 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/08 16:56:21 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,5 @@ int	main(int argc, char **argv, char **envp)
 		}
 		free1p(&input);
 	}
-	free_env(sh.env);
-	return (sh.last_status);
+	return (free_env(sh.env), sh.last_status);
 }

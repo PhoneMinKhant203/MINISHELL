@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:22:34 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/07 16:49:39 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/08 15:41:58 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,21 +26,21 @@ int	mini_env(t_env *env)
 t_env	*copy_env_list(t_env *env)
 {
 	t_env	*new_list;
-	t_env	*new_node;
+	t_env	*curr;
+	t_env	*new;
 
 	new_list = NULL;
 	while (env)
 	{
-		new_node = malloc(sizeof(t_env));
-		if (!new_node)
-			return (NULL);
-		new_node->key = ft_strdup(env->key);
-		if (env->value)
-			new_node->value = ft_strdup(env->value);
-		else
-			new_node->value = NULL;
-		new_node->next = new_list;
-		new_list = new_node;
+		new = new_env_node(env->key, env->value);
+		if (new)
+		{
+			if (!new_list)
+				new_list = new;
+			else
+				curr->next = new;
+			curr = new;
+		}
 		env = env->next;
 	}
 	return (new_list);

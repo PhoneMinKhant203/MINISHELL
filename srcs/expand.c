@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 20:07:36 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/06 18:19:50 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/08 14:35:17 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,17 +36,20 @@ char	*expand_str(char *s, t_shell *sh)
 
 static void	expand_redir(char **path, t_shell *sh)
 {
-	char	*original;
+	char	*org;
 
 	if (!path || !*path)
 		return ;
-	original = ft_strdup(*path);
-	if (!original)
+	org = ft_strdup(*path);
+	if (!org)
 		return ;
 	*path = expand_str(*path, sh);
 	if (!*path || (*path)[0] == '\0')
-		sh->last_status = print_err(original, 'r');
-	free(original);
+	{
+		print_err(org, NULL, "ambiguous redirect");
+		sh->last_status = 1;
+	}
+	free(org);
 }
 
 void	expand_cmds(t_cmd *cmds, t_shell *sh)
