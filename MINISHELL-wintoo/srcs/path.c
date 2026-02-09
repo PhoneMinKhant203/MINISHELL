@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   path.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 12:31:23 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/07 13:38:56 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/09 18:11:23 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,13 @@ char	*find_path(char *cmd, t_env *env_list)
 		return (NULL);
 	if (ft_strchr(cmd, '/'))
 	{
-		if (stat(cmd, &st) == 0 && S_ISREG(st.st_mode)
-			&& access(cmd, X_OK) == 0)
-			return (ft_strdup(cmd));
+		if (stat(cmd, &st) == 0)
+		{
+			if (S_ISDIR(st.st_mode))
+				return (ft_strdup("IS_DIR")); 
+			if (access(cmd, X_OK) == 0)
+				return (ft_strdup(cmd));
+		}
 		return (NULL);
 	}
 	node = find_env_node(env_list, "PATH");

@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/09 18:03:20 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/09 18:23:24 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ void	free1p(char **s);
 //CMD_Execution
 void	start_executor(t_cmd *cmds, t_shell *sh);
 void	child_exec_binary(t_cmd *cmd, t_shell *sh);
-void	wait_all_children(t_shell *sh);
+void    wait_all_children(t_shell *sh, pid_t last_pid);
 
 //Execucator
 char	**env_to_array(t_env *env);

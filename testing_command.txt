@@ -1,0 +1,21 @@
+---------
+EXIT CODE
+---------
+ls	-	0
+ls wrongdir	-	2
+grep	-	2
+not_a_command - 127
+""	-	127 
+.	- 2
+..	-	127
+./	-	126
+usr/bin		-	127
+exit 42
+cd /path/does/not/exit	-	1
+export INVALID-VAR=1	-	1
+sleep 10 (ctr C)	- 130
+sleep 10 (ctr \)	- 131 
+
+
+
+
