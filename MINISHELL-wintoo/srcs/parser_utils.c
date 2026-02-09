@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:21:40 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/05 11:27:21 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/06 13:41:51 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,23 +50,25 @@ void	fill_args(t_cmd *cmd, t_token *tk)
 }
 
 // Assumes syntax is valid (check later)
-void    handle_redir(t_cmd *cmd, t_token *tk)
+void	handle_redir(t_cmd *cmd, t_token *tk)
 {
-    while (tk && tk->type != T_PIPE)
-    {
-        if (tk->type == T_IN && tk->next)
-        {
-            if (cmd->infile) free(cmd->infile);
-            cmd->infile = ft_strdup(tk->next->value);
-        }
-        else if ((tk->type == T_OUT || tk->type == T_APPEND) && tk->next)
-        {
-            if (cmd->outfile) free(cmd->outfile);
-            cmd->outfile = ft_strdup(tk->next->value);
-            cmd->append = (tk->type == T_APPEND);
-        }
-        tk = tk->next;
-    }
+	while (tk && tk->type != T_PIPE)
+	{
+		if (tk->type == T_IN && tk->next)
+		{
+			if (cmd->infile)
+				free(cmd->infile);
+			cmd->infile = ft_strdup(tk->next->value);
+		}
+		else if ((tk->type == T_OUT || tk->type == T_APPEND) && tk->next)
+		{
+			if (cmd->outfile)
+				free(cmd->outfile);
+			cmd->outfile = ft_strdup(tk->next->value);
+			cmd->append = (tk->type == T_APPEND);
+		}
+		tk = tk->next;
+	}
 }
 
 t_cmd	*parse_one_cmd(t_token *tk)
