@@ -17,5 +17,28 @@ sleep 10 (ctr C)	- 130
 sleep 10 (ctr \)	- 131 
 
 
+---------
+env
+---------
+env
+env -
 
+---------
+echo
+---------
+echo 
+echo hello
+echo -n hello
+echo -n -n -n hello
+echo -nnnnnnn hello
+
+
+---------
+cd
+---------
+cd 
+cd ..
+cd .. .. ..
+cd -
+cd ~
 

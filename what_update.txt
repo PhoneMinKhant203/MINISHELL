@@ -10,5 +10,6 @@ update is_builtin
 For echo
 update mini_echo
 
-
+For cd
+update mini_cd
 
