@@ -1,0 +1,126 @@
+minishell VS bash
+.....................
+==== WE START HERE ====
+---------------------
+7. check exit code                -> exit (arg)
+
+check env -
+
+8. SHELLlvl and SHELL - need to confirm (has to be bash not zsh)
+
+10. PWD, OLD_PWD (need to reflect based on current dir) cd test
+
+11. _ in env represents current command
+
+
+built-in commands -
+
+12. echo (-n flag doesn't work as expected as in bash) - 
+	e.g "echo -n -n -n hello" , "echo -nnnnnnnnnnnnnnnnnn hello", "echo -n -n-n hello"
+echo *, echo ~, echo #, echo ***
+$echo or $arg , $echo hello
+
+
+13. cd ( "cd -" '-' means OLD_PWD, so need to change dir to OLD_PWD)
+	("cd ~" "~" means HOME)
+	(cd .. ..) (cd /MINISHELL .. ..) bash: cd: too many arguments
+	cd - save PWD, OLD_PWD, 
+	
+14.
+minishell$ mkdir test_dir
+minishell$ cd test_dir/
+minishell$ pwd
+/home/wintoo/42/MS_3/minishell/MINISHELL/test_dir
+minishell$ rmdir ../test_dir/
+minishell$ pwd
+pwd: No such file or directory
+
+
+15. export cmd substitution - Compare with bash
+-> export tauk=$(ls -la) , export tak=$(ls) , export a=$($tauk -a)
+
+
+16. Heredocs
+minishell$ << HERE cat
+> hello
+> HERE
+
+hello
+
+17. Multiple file creation
+
+.....................
+
+1. Basic Successful Expansion
+	Input: cat < $USER
+
+	Expectation: If $USER is wintoo, it should open the file wintoo. No error.
+
+	Logic Check: Does expand_str return the correct string?
+
+
+2. The Ambiguous Redirect (Empty Variable)
+	Input: cat > $EMPTY_VAR
+
+	Expectation: minishell: $EMPTY_VAR: ambiguous redirect and sh->last_status = 1.
+
+	Logic Check: Since $EMPTY_VAR is NULL or "", the if (!*path || (*path)[0] == '\0') block should trigger.
+
+
+3. The Ambiguous Redirect (Unset Variable)
+	Input: ls > $VAR_NOT_EXISTING
+
+	Expectation: minishell: $VAR_NOT_EXISTING: ambiguous redirect.
+
+	Logic Check: Ensures your env_get doesn't crash on unset variables and that expand_redir catches the empty result.
+
+
+4. Quoted Empty Variable (The "Gotcha")
+	Input: cat < "$EMPTY_VAR"
+
+	Expectation: Bash behavior varies here, but usually, "$EMPTY_VAR" expands to "" (a literal empty string). If a file named "" (empty name) doesn't exist, it usually fails with No such file or directory, not ambiguous redirect.
+
+	Logic Check: See how your expand_str handles double quotes around an empty variable.
+
+
+5. Multi-Word Expansion (Advanced)
+	Input: export FILE="a b" ; cat < $FILE
+
+	Expectation: minishell: $FILE: ambiguous redirect.
+
+	Context: In real Bash, if a variable expands to two words (due to the space), it's ambiguous. Your current code might not catch this yet (it treats "a b" as one filename), but it's a great test for the future!
+
+
+6. Expansion with Text
+	Input: echo hello > file_$USER
+
+	Expectation: If $USER is wintoo, it creates file_wintoo.
+
+	Logic Check: Ensures the append_str logic correctly joins literal text with expanded text in the filename.
+
+
+7. Exit Status Expansion
+	Input: cat < file_$?
+
+	Expectation: If the last command failed (status 1), it looks for file_1.
+
+	Logic Check: Ensures sh->last_status is correctly pulled into the filename.
+
+
+8. Double Expansion in Filename
+	Input: ls > $USER_$HOME.txt
+
+	Expectation: Expands both variables into a single long filename.
+
+
+9. Special Characters in Filename
+	Input: touch "file with spaces" ; cat < "file with spaces"
+
+	Expectation: Should correctly expand/handle the filename without splitting it.
+
+
+10. Ambiguous Infile vs. Valid Outfile
+	Input: cat < $EMPTY > outfile
+
+	Expectation: Error minishell: $EMPTY: ambiguous redirect. Command should not execute. outfile might be created (Bash creates outfiles even if the command fails), but last_status must be 1
+
