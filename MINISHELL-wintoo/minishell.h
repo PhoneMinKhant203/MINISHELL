@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/09 18:23:24 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/09 18:52:45 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ char	*expand_str(char *s, t_shell *sh);
 void	expand_cmds(t_cmd *cmds, t_shell *sh);
 
 //Built in
-int		is_builtin(char *cmd);
+int		is_builtin(char **args);
 int		exe_builtin(char **args, t_shell *sh);
 t_env	*init_env(char **envp);
 int		mini_cd(char **args, t_env **env);

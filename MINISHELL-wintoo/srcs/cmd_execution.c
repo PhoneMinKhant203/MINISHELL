@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/09 18:42:01 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/09 18:56:36 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,6 @@ static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 {
 	int	i;
 
-	// Reset signals so child responds to Ctrl-C and Ctrl-\ normally
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
 	if (fdin != STDIN_FILENO)
@@ -95,11 +94,9 @@ static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 	i = 0;
 	while (cmd->args[i] && cmd->args[i][0] == '\0')
 		i++;
-	// If it's specifically an empty string "", it should hit child_exec_binary
-	// to return 127. If there are NO args, we exit 0.
 	if (!cmd->args[i] && i == 0)
 		exit(0);
-	if (is_builtin(cmd->args[i]))
+	if (is_builtin(cmd->args))
 		exit(exe_builtin(&cmd->args[i], sh));
 	else
 		child_exec_binary(cmd, sh);

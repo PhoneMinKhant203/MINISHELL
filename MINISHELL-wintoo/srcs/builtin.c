@@ -3,25 +3,32 @@
 /*                                                        :::      ::::::::   */
 /*   builtin.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:06:31 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/07 18:03:44 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/09 18:51:50 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int	is_builtin(char *cmd)
+int is_builtin(char **args)
 {
-	if (!cmd)
-		return (0);
-	if (ft_strncmp(cmd, "echo", 5) == 0 || ft_strncmp(cmd, "cd", 3) == 0
-		|| ft_strncmp(cmd, "pwd", 4) == 0 || ft_strncmp(cmd, "export", 7) == 0
-		|| ft_strncmp(cmd, "unset", 6) == 0 || ft_strncmp(cmd, "env", 4) == 0
-		|| ft_strncmp(cmd, "exit", 5) == 0)
-		return (1);
-	return (0);
+    if (!args || !args[0])
+        return (0);
+    char *cmd = args[0];
+
+    if (ft_strncmp(cmd, "echo", 5) == 0 || ft_strncmp(cmd, "cd", 3) == 0 ||
+        ft_strncmp(cmd, "export", 7) == 0 || ft_strncmp(cmd, "unset", 6) == 0 ||
+        ft_strncmp(cmd, "exit", 5) == 0 || ft_strncmp(cmd, "pwd", 4) == 0)
+        return (1);
+    if (ft_strncmp(cmd, "env", 4) == 0)
+    {
+        if (args[1] == NULL)
+            return (1);
+        return (0);
+    }
+    return (0);
 }
 
 //changed arg from t_env **env_copy to t_shell *sh

@@ -6,7 +6,7 @@
 /*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 17:07:58 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/09 18:34:55 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/09 18:54:12 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int execute_cmds(t_cmd *cmds, t_shell *sh)
         return (0);
 
     // 1. Single Built-in (No Pipes): Run in Parent
-    if (!cmds->next && is_builtin(cmds->args[0]))
+    if (!cmds->next && is_builtin(cmds->args))
     {
         sh->last_status = handle_builtin(cmds, sh, 0);
         return (sh->last_status);

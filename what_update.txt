@@ -4,6 +4,11 @@ update *find_path
 update child_exec_binary
 update wait_all_children
 
+For env -
+update is_builtin
+
+For echo
+update mini_echo
 
 
 
