@@ -6,21 +6,28 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:06:31 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/07 18:03:44 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 14:02:08 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int	is_builtin(char *cmd)
+int	is_builtin(char **args)
 {
-	if (!cmd)
+	if (!args || !args[0])
 		return (0);
-	if (ft_strncmp(cmd, "echo", 5) == 0 || ft_strncmp(cmd, "cd", 3) == 0
-		|| ft_strncmp(cmd, "pwd", 4) == 0 || ft_strncmp(cmd, "export", 7) == 0
-		|| ft_strncmp(cmd, "unset", 6) == 0 || ft_strncmp(cmd, "env", 4) == 0
-		|| ft_strncmp(cmd, "exit", 5) == 0)
+	if (ft_strncmp(args[0], "echo", 5) == 0 || ft_strncmp(args[0], "cd", 3) == 0
+		|| ft_strncmp(args[0], "pwd", 4) == 0
+		|| ft_strncmp(args[0], "export", 7) == 0
+		|| ft_strncmp(args[0], "unset", 6) == 0
+		|| ft_strncmp(args[0], "exit", 5) == 0)
 		return (1);
+	if (ft_strncmp(args[0], "env", 4) == 0)
+	{
+		if (args[1] == NULL)
+			return (1);
+		return (0);
+	}
 	return (0);
 }
 
@@ -42,6 +49,6 @@ int	exe_builtin(char **args, t_shell *sh)
 	if (ft_strncmp(args[0], "unset", 6) == 0)
 		return (mini_unset(args, &sh->env));
 	if (ft_strncmp(args[0], "exit", 5) == 0)
-		mini_exit(args, sh);
+		return (mini_exit(args, sh), 1);
 	return (0);
 }

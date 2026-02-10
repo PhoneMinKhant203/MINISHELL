@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/08 16:50:17 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 13:28:18 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ void	free_cmds(t_cmd *cmd);
 void	free_tokens(t_token *tok);
 void	free_env(t_env *env);
 void	print_err(char *arg, char *cmd, char *msg);
-void	exe_error(char *cmd);
+void	exe_error(char *arg, char *path);
 
 //Expand
 t_env	*new_env_node(char *key, char *value);
@@ -105,7 +105,7 @@ char	*expand_str(char *s, t_shell *sh);
 void	expand_cmds(t_cmd *cmds, t_shell *sh);
 
 //Built in
-int		is_builtin(char *cmd);
+int		is_builtin(char **args);
 int		exe_builtin(char **args, t_shell *sh);
 t_env	*init_env(char **envp);
 int		mini_cd(char **args, t_env **env);
@@ -137,8 +137,8 @@ void	free1p(char **s);
 
 //CMD_Execution
 void	start_executor(t_cmd *cmds, t_shell *sh);
-void	child_exec_binary(t_cmd *cmd, t_shell *sh);
-void	wait_all_children(t_shell *sh);
+void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i);
+void	wait_all_children(t_shell *sh, pid_t last_pid);
 
 //Execucator
 char	**env_to_array(t_env *env);

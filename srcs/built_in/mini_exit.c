@@ -6,43 +6,37 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 21:40:24 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/07 17:52:15 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 14:23:22 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
+#include <limits.h>
 
 static int	is_all_digits(char *str)
 {
-	int	i;
+	unsigned long long	res;
+	int					i;
+	int					sign;
 
 	i = 0;
-	if (!str)
-		return (0);
+	res = 0;
+	sign = 1;
 	if (str[i] == '-' || str[i] == '+')
-		i++;
+		if (str[i++] == '-')
+			sign = -1;
 	if (!str[i])
 		return (0);
 	while (str[i])
 	{
 		if (!ft_isdigit(str[i]))
 			return (0);
-		i++;
+		res = res * 10 + (str[i++] - '0');
+		if ((sign == 1 && res > (unsigned long long)LLONG_MAX)
+			|| (sign == -1 && res > (unsigned long long)LLONG_MAX + 1))
+			return (0);
 	}
 	return (1);
-}
-
-static void	exit_error(char *arg, char *msg, int status)
-{
-	ft_putstr_fd("minishell: exit: ", 2);
-	if (arg)
-	{
-		ft_putstr_fd(arg, 2);
-		ft_putstr_fd(": ", 2);
-	}
-	ft_putendl_fd(msg, 2);
-	if (status != -1)
-		exit(status);
 }
 
 void	mini_exit(char **args, t_shell *sh)
@@ -55,13 +49,14 @@ void	mini_exit(char **args, t_shell *sh)
 	}
 	if (!is_all_digits(args[1]))
 	{
+		print_err(args[1], "exit: ", "numeric argument required");
 		free_env(sh->env);
-		exit_error(args[1], "numeric argument required", 255);
+		exit(2);
 	}
 	if (args[2])
 	{
-		exit_error(NULL, "too many arguments", -1);
-		return ;
+		sh->last_status = 1;
+		return (print_err(NULL, "exit: ", "too many arguments"));
 	}
 	free_env(sh->env);
 	exit((unsigned char)ft_atoi(args[1]));

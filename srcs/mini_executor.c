@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 17:07:58 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/08 16:28:21 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 12:21:44 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,17 +32,13 @@ static int	handle_builtin(t_cmd *cmd, t_shell *sh, int i)
 
 int	execute_cmds(t_cmd *cmds, t_shell *sh)
 {
-	int	i;
-
-	if (!cmds || !cmds->args)
+	if (!cmds || !cmds->args || !cmds->args[0])
 		return (0);
-	i = 0;
-	while (cmds->args[i] && cmds->args[i][0] == '\0')
-		i++;
-	if (!cmds->args[i])
-		return (0);
-	if (!cmds->next && is_builtin(cmds->args[i]))
-		return (handle_builtin(cmds, sh, i));
+	if (!cmds->next && is_builtin(cmds->args))
+	{
+		sh->last_status = handle_builtin(cmds, sh, 0);
+		return (sh->last_status);
+	}
 	start_executor(cmds, sh);
 	return (sh->last_status);
 }

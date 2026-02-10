@@ -6,40 +6,43 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/08 17:00:06 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 13:28:48 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void	child_exec_binary(t_cmd *cmd, t_shell *sh)
+void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 {
-	char		*path;
-	char		**env_arr;
-	int			i;
+	char	*path;
+	char	**env_arr;
 
-	i = 0;
-	while (cmd->args[i] && cmd->args[i][0] == '\0')
-		i++;
-	if (!cmd->args[i])
-		exit(0);
-	path = find_path(cmd->args[i], sh->env);
-	if (!path)
-		exe_error(cmd->args[i]);
-	env_arr = env_to_array(sh->env);
-	if (!env_arr)
-		exit(1);
-	if (execve(path, &cmd->args[i], env_arr) == -1)
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	if (cmd->args[0][0] == '\0')
 	{
-		perror("minishell: execve");
-		exit(126);
+		ft_putendl_fd("minishell: : command not found", 2);
+		exit(127);
 	}
+	path = find_path(cmd->args[i], sh->env);
+	if (!path || path[0] == '\0' || ft_strncmp(cmd->args[i], ".", 2) == 0
+		|| ft_strncmp(cmd->args[i], "..", 3) == 0
+		|| ft_strncmp(path, "IS_DIR", 7) == 0)
+		exe_error(cmd->args[i], path);
+	env_arr = env_to_array(sh->env);
+	execve(path, &cmd->args[i], env_arr);
+	perror("minishell: execve");
+	free(path);
+	free2p(env_arr);
+	exit(126);
 }
 
 static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 {
 	int	i;
 
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
 	if (fdin != STDIN_FILENO)
 	{
 		dup2(fdin, STDIN_FILENO);
@@ -56,29 +59,29 @@ static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 	i = 0;
 	while (cmd->args[i] && cmd->args[i][0] == '\0')
 		i++;
-	if (!cmd->args[i])
+	if (!cmd->args[i] && i == 0)
 		exit(0);
-	if (is_builtin(cmd->args[i]))
+	if (is_builtin(cmd->args))
 		exit(exe_builtin(&cmd->args[i], sh));
-	else
-		child_exec_binary(cmd, sh);
+	child_exec_binary(cmd, sh, i);
 }
 
 void	start_executor(t_cmd *cmds, t_shell *sh)
 {
 	int		fd_pipe[2];
 	int		fd_in;
-	pid_t	pid;
+	pid_t	last_pid;
 
 	fd_in = STDIN_FILENO;
+	last_pid = -1;
 	while (cmds)
 	{
 		if (cmds->next && pipe(fd_pipe) == -1)
 			return (perror("minishell: pipe"));
-		pid = fork();
-		if (pid == -1)
+		last_pid = fork();
+		if (last_pid == -1)
 			return (perror("minishell: fork"));
-		if (pid == 0)
+		if (last_pid == 0)
 			child_process(cmds, sh, fd_in, fd_pipe);
 		if (fd_in != STDIN_FILENO)
 			close(fd_in);
@@ -89,21 +92,31 @@ void	start_executor(t_cmd *cmds, t_shell *sh)
 		}
 		cmds = cmds->next;
 	}
-	wait_all_children(sh);
+	wait_all_children(sh, last_pid);
 }
 
-void	wait_all_children(t_shell *sh)
+void	wait_all_children(t_shell *sh, pid_t last_pid)
 {
-	int	status;
-	int	pid;
+	int		status;
+	pid_t	pid;
 
-	pid = wait(&status);
+	pid = waitpid(-1, &status, 0);
 	while (pid > 0)
 	{
-		if (WIFEXITED(status))
-			sh->last_status = WEXITSTATUS(status);
-		else if (WIFSIGNALED(status))
-			sh->last_status = 128 + WTERMSIG(status);
-		pid = wait(&status);
+		if (pid == last_pid)
+		{
+			if (WIFEXITED(status))
+				sh->last_status = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+				sh->last_status = 128 + WTERMSIG(status);
+		}
+		if (WIFSIGNALED(status))
+		{
+			if (WTERMSIG(status) == SIGQUIT)
+				write(1, "Quit (core dumped)\n", 19);
+			else if (WTERMSIG(status) == SIGINT)
+				write(1, "\n", 1);
+		}
+		pid = waitpid(-1, &status, 0);
 	}
 }
