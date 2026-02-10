@@ -6,11 +6,22 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/10 17:30:53 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 17:57:24 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+static int	is_directory(const char *p)
+{
+	struct stat	st;
+
+	if (!p)
+		return (0);
+	if (stat(p, &st) == -1)
+		return (0);
+	return (S_ISDIR(st.st_mode));
+}
 
 /*
 if (!path || path[0] == '\0' || !ft_strncmp(cmd->args[i], ".", 2)
@@ -22,24 +33,41 @@ void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 {
 	char	*path;
 	char	**env_arr;
+	int		err;
 
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
+	(void)sh;
 	if (!cmd->args || !cmd->args[i] || cmd->args[i][0] == '\0')
 	{
 		ft_putendl_fd("minishell: : command not found", 2);
 		exit(127);
 	}
-	path = find_path(cmd->args[i], sh->env);
+	if (ft_strchr(cmd->args[i], '/'))
+		path = ft_strdup(cmd->args[i]);
+	else
+		path = find_path(cmd->args[i], sh->env);
 	if (!path || path[0] == '\0' || ft_strncmp(path, "IS_DIR", 7) == 0)
 		exe_error(cmd->args[i], path);
+	if (ft_strchr(cmd->args[i], '/') && is_directory(path))
+	{
+		errno = EISDIR;
+		perror(cmd->args[i]);
+		free(path);
+		exit(126);
+	}
 	env_arr = env_to_array(sh->env);
 	execve(path, &cmd->args[i], env_arr);
-	perror("minishell: execve");
+	err = errno;
+	errno = err;
+	perror(cmd->args[i]);
 	free(path);
 	free2p(env_arr);
-	exit(126);
+	if (err == EACCES || err == EISDIR)
+		exit(126);
+	exit(127);
 }
+
 
 static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 {

@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:10:08 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/10 12:23:55 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 17:48:44 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,12 @@ int	mini_echo(char **args)
 	}
 	while (args[i])
 	{
-		printf("%s", args[i]);
+		ft_putstr_fd(args[i], STDOUT_FILENO);
 		if (args[i + 1])
-			printf(" ");
+			write(STDOUT_FILENO, " ", 1);
 		i++;
 	}
 	if (!n_flag)
-		printf("\n");
+		write(STDOUT_FILENO, "\n", 1);
 	return (0);
 }
