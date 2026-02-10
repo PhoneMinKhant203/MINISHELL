@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 20:07:36 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/08 14:35:17 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 16:52:53 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,28 +34,34 @@ char	*expand_str(char *s, t_shell *sh)
 	return (res);
 }
 
-static void	expand_redir(char **path, t_shell *sh)
+static void	expand_redir(t_redir *r, t_shell *sh)
 {
 	char	*org;
+	char	*expanded;
 
-	if (!path || !*path)
+	if (!r || !r->target)
 		return ;
-	org = ft_strdup(*path);
+	org = ft_strdup(r->target);
 	if (!org)
 		return ;
-	*path = expand_str(*path, sh);
-	if (!*path || (*path)[0] == '\0')
+	expanded = expand_str(ft_strdup(r->target), sh);
+	free1p(&r->target);
+	r->target = expanded;
+	if (!r->target || r->target[0] == '\0')
 	{
 		print_err(org, NULL, "ambiguous redirect");
 		sh->last_status = 1;
+		free1p(&r->target);
+		r->target = NULL;
 	}
-	free(org);
+	free1p(&org);
 }
 
 void	expand_cmds(t_cmd *cmds, t_shell *sh)
 {
 	t_cmd	*curr;
 	int		i;
+	t_redir	*r;
 
 	curr = cmds;
 	while (curr)
@@ -66,8 +72,30 @@ void	expand_cmds(t_cmd *cmds, t_shell *sh)
 			curr->args[i] = expand_str(curr->args[i], sh);
 			i++;
 		}
-		expand_redir(&curr->infile, sh);
-		expand_redir(&curr->outfile, sh);
+		r = curr->redirs;
+		while (r)
+		{
+			expand_redir(r, sh);
+			r = r->next;
+		}
+		free1p(&curr->infile);
+		free1p(&curr->outfile);
+		free1p(&curr->heredoc);
+		curr->append = 0;
+		r = curr->redirs;
+		while (r)
+		{
+			if (r->type == T_IN && r->target)
+				curr->infile = ft_strdup(r->target);
+			else if ((r->type == T_OUT || r->type == T_APPEND) && r->target)
+			{
+				curr->outfile = ft_strdup(r->target);
+				curr->append = (r->type == T_APPEND);
+			}
+			else if (r->type == T_HEREDOC && r->target)
+				curr->heredoc = ft_strdup(r->target);
+			r = r->next;
+		}
 		curr = curr->next;
 	}
 }

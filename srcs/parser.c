@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:19:45 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/06 13:40:06 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 16:23:24 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ t_cmd	*new_cmd(void)
 	if (!cmd)
 		return (NULL);
 	cmd->args = NULL;
+	cmd->redirs = NULL;
 	cmd->infile = NULL;
 	cmd->outfile = NULL;
 	cmd->append = 0;

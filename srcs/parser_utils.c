@@ -6,12 +6,15 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:21:40 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/06 13:41:51 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 16:32:00 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+//
+// changed T_APPEND with T_HEREDOC
+//
 int	count_args(t_token *tk)
 {
 	int	count;
@@ -21,7 +24,7 @@ int	count_args(t_token *tk)
 	{
 		if (tk->type == T_WORD)
 			count++;
-		if (tk->type >= T_IN && tk->type <= T_APPEND)
+		if (tk->type >= T_IN && tk->type <= T_HEREDOC)
 			tk = tk->next;
 		if (tk)
 			tk = tk->next;
@@ -41,7 +44,7 @@ void	fill_args(t_cmd *cmd, t_token *tk)
 			cmd->args[i] = ft_strdup(tk->value);
 			i++;
 		}
-		if (tk->type >= T_IN && tk->type <= T_APPEND)
+		if (tk->type >= T_IN && tk->type <= T_HEREDOC)
 			tk = tk->next;
 		if (tk)
 			tk = tk->next;
@@ -49,23 +52,33 @@ void	fill_args(t_cmd *cmd, t_token *tk)
 	cmd->args[i] = NULL;
 }
 
-// Assumes syntax is valid (check later)
 void	handle_redir(t_cmd *cmd, t_token *tk)
 {
+	t_redir	*r;
+
 	while (tk && tk->type != T_PIPE)
 	{
+		if ((tk->type == T_IN || tk->type == T_OUT
+				|| tk->type == T_APPEND || tk->type == T_HEREDOC) && tk->next)
+		{
+			r = new_redir(tk->type, tk->next->value);
+			redir_add_back(cmd, r);
+		}
 		if (tk->type == T_IN && tk->next)
 		{
-			if (cmd->infile)
-				free(cmd->infile);
+			free1p(&cmd->infile);
 			cmd->infile = ft_strdup(tk->next->value);
 		}
 		else if ((tk->type == T_OUT || tk->type == T_APPEND) && tk->next)
 		{
-			if (cmd->outfile)
-				free(cmd->outfile);
+			free1p(&cmd->outfile);
 			cmd->outfile = ft_strdup(tk->next->value);
 			cmd->append = (tk->type == T_APPEND);
+		}
+		else if (tk->type == T_HEREDOC && tk->next)
+		{
+			free1p(&cmd->heredoc);
+			cmd->heredoc = ft_strdup(tk->next->value);
 		}
 		tk = tk->next;
 	}

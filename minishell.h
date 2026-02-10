@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/10 13:28:18 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 16:48:54 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,6 @@
 # include <readline/history.h>
 # include <fcntl.h>
 
-typedef struct s_cmd
-{
-	char			**args;
-	char			*infile;
-	char			*outfile;
-	int				append;
-	char			*heredoc;
-	struct s_cmd	*next;
-}	t_cmd;
-
 typedef enum e_tktype
 {
 	T_WORD,
@@ -45,6 +35,26 @@ typedef enum e_tktype
 	T_APPEND,
 	T_HEREDOC
 }	t_tktype;
+
+typedef struct s_redir
+{
+	t_tktype			type;
+	char				*target;
+	struct s_redir		*next;
+}	t_redir;
+
+typedef struct s_cmd
+{
+	char			**args;
+	t_redir			*redirs;
+	char			*infile;
+	char			*outfile;
+	int				append;
+	char			*heredoc;
+	int				fd_in;
+	int				fd_out;
+	struct s_cmd	*next;
+}	t_cmd;
 
 typedef struct s_token
 {
@@ -85,9 +95,16 @@ t_cmd	*parse_one_cmd(t_token *tok);
 t_token	*skip_to_pipe(t_token *tok);
 t_cmd	*parse(t_token *tok);
 
+//Redirection
+t_redir	*new_redir(t_tktype type, const char *target);
+void	redir_add_back(t_cmd *cmd, t_redir *node);
+int		setup_redirection(t_cmd *cmd);
+void	handle_heredoc(char *delimiter);
+
 //Utils
 void	free2p(char **s);
 void	free1p(char **s);
+void	free_redirs(t_redir *r);
 void	free_cmds(t_cmd *cmd);
 void	free_tokens(t_token *tok);
 void	free_env(t_env *env);
@@ -121,10 +138,6 @@ int		is_valid_var_name(char *str);
 void	sort_env_list(t_env *head);
 void	print_sorted_env(t_env *env);
 t_env	*copy_env_list(t_env *env);
-
-//Redirection
-int		setup_redirection(t_cmd *cmd);
-void	handle_heredoc(char *delimiter);
 
 //Signal
 void	setup_signals(void);

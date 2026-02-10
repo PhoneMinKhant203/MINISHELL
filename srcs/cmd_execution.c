@@ -6,12 +6,18 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/10 13:28:48 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/10 17:30:53 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+/*
+if (!path || path[0] == '\0' || !ft_strncmp(cmd->args[i], ".", 2)
+		|| !ft_strncmp(cmd->args[i], "..", 3)
+		|| !ft_strncmp(path, "IS_DIR", 7))
+		exe_error(cmd->args[i], path);
+*/
 void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 {
 	char	*path;
@@ -19,15 +25,13 @@ void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
-	if (cmd->args[0][0] == '\0')
+	if (!cmd->args || !cmd->args[i] || cmd->args[i][0] == '\0')
 	{
 		ft_putendl_fd("minishell: : command not found", 2);
 		exit(127);
 	}
 	path = find_path(cmd->args[i], sh->env);
-	if (!path || path[0] == '\0' || ft_strncmp(cmd->args[i], ".", 2) == 0
-		|| ft_strncmp(cmd->args[i], "..", 3) == 0
-		|| ft_strncmp(path, "IS_DIR", 7) == 0)
+	if (!path || path[0] == '\0' || ft_strncmp(path, "IS_DIR", 7) == 0)
 		exe_error(cmd->args[i], path);
 	env_arr = env_to_array(sh->env);
 	execve(path, &cmd->args[i], env_arr);
@@ -59,9 +63,9 @@ static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 	i = 0;
 	while (cmd->args[i] && cmd->args[i][0] == '\0')
 		i++;
-	if (!cmd->args[i] && i == 0)
+	if (!cmd->args[i])
 		exit(0);
-	if (is_builtin(cmd->args))
+	if (is_builtin(&cmd->args[i]))
 		exit(exe_builtin(&cmd->args[i], sh));
 	child_exec_binary(cmd, sh, i);
 }
