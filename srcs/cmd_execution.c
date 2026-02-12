@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/10 17:57:24 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/12 17:14:06 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,13 +68,13 @@ void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 	exit(127);
 }
 
-
 static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 {
 	int	i;
 
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
+
 	if (fdin != STDIN_FILENO)
 	{
 		dup2(fdin, STDIN_FILENO);
@@ -88,15 +88,17 @@ static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 	}
 	if (setup_redirection(cmd) == -1)
 		exit(1);
+
 	i = 0;
-	while (cmd->args[i] && cmd->args[i][0] == '\0')
+	while (cmd->args && cmd->args[i] && cmd->args[i][0] == '\0')
 		i++;
-	if (!cmd->args[i])
+	if (!cmd->args || !cmd->args[i])
 		exit(0);
 	if (is_builtin(&cmd->args[i]))
 		exit(exe_builtin(&cmd->args[i], sh));
 	child_exec_binary(cmd, sh, i);
 }
+
 
 void	start_executor(t_cmd *cmds, t_shell *sh)
 {

@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/10 16:48:54 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/12 16:57:34 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,13 @@ typedef enum e_tktype
 {
 	T_WORD,
 	T_PIPE,
+	T_AND,
+	T_OR,
 	T_IN,
 	T_OUT,
 	T_APPEND,
-	T_HEREDOC
+	T_HEREDOC,
+	T_BAD
 }	t_tktype;
 
 typedef struct s_redir
@@ -75,6 +78,21 @@ typedef struct s_shell
 	t_env	*env;
 	int		last_status;
 }	t_shell;
+
+typedef enum e_ntype
+{
+	N_PIPELINE,
+	N_AND,
+	N_OR
+}	t_ntype;
+
+typedef struct s_node
+{
+	t_ntype			type;
+	struct s_node	*left;
+	struct s_node	*right;
+	t_cmd			*pipeline;
+}	t_node;
 
 extern volatile sig_atomic_t	g_signal;
 
@@ -158,5 +176,22 @@ char	**env_to_array(t_env *env);
 char	*find_path(char *cmd, t_env *env_list);
 int		exe_cmd(t_cmd *cmd, t_env *env_list);
 int		execute_cmds(t_cmd *cmds, t_shell *sh);
+
+// Wildcard
+int		contains_wildcard(const char *s);
+int		match_pattern(const char *pat, const char *name);
+char	**expand_wildcards_argv(char **argv, int *changed);
+char	*expand_wildcard_redir(const char *pattern, int *ambiguous);
+void	unmask_wildcards(char *s);
+char	mask_wildcard_char(char c);
+
+int		validate_syntax(t_token *tk, t_shell *sh);
+/* Parser (bonus && ||) */
+t_node	*parse_ast(t_token *tok);
+void	free_ast(t_node *node);
+
+/* Executor (bonus && ||) */
+int		execute_ast(t_node *node, t_shell *sh);
+void	expand_ast(t_node *node, t_shell *sh);
 
 #endif

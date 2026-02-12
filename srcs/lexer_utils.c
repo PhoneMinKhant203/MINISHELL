@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:48:11 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/06 13:37:10 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/12 16:56:05 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	skip_spaces(char *s, int *i)
 
 int	is_operator(char c)
 {
-	return (c == '|' || c == '<' || c == '>');
+	return (c == '|' || c == '<' || c == '>' || c == '&');
 }
 
 char	*get_word(char *s, int *i)
@@ -51,23 +51,29 @@ char	*get_word(char *s, int *i)
 t_token	*get_token(char *s, int *i)
 {
 	if (s[*i] == '|')
+	{
+		if (s[*i + 1] == '|')
+			return (*i += 2, new_token(ft_strdup("||"), T_OR));
+		if (s[*i + 1] == '&')
+			return (*i += 2, new_token(ft_strdup("|&"), T_BAD));
 		return ((*i)++, new_token(ft_strdup("|"), T_PIPE));
+	}
+	if (s[*i] == '&')
+	{
+		if (s[*i + 1] == '&')
+			return (*i += 2, new_token(ft_strdup("&&"), T_AND));
+		return ((*i)++, new_token(ft_strdup("&"), T_BAD));
+	}
 	if (s[*i] == '<')
 	{
 		if (s[*i + 1] == '<')
-		{
-			*i += 2;
-			return (new_token(ft_strdup("<<"), T_HEREDOC));
-		}
+			return (*i += 2, new_token(ft_strdup("<<"), T_HEREDOC));
 		return ((*i)++, new_token(ft_strdup("<"), T_IN));
 	}
 	if (s[*i] == '>')
 	{
 		if (s[*i + 1] == '>')
-		{
-			*i += 2;
-			return (new_token(ft_strdup(">>"), T_APPEND));
-		}
+			return (*i += 2, new_token(ft_strdup(">>"), T_APPEND));
 		return ((*i)++, new_token(ft_strdup(">"), T_OUT));
 	}
 	return (new_token(get_word(s, i), T_WORD));

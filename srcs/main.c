@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:56:25 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/08 16:56:21 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/12 16:59:10 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,24 +15,20 @@
 static void	process_input(char *line, t_shell *sh)
 {
 	t_token	*tokens;
-	t_cmd	*cmds;
-	int		i;
+	t_node	*ast;
 
 	tokens = tokenize(line);
 	if (!tokens)
 		return ;
-	cmds = parse(tokens);
+	if (!validate_syntax(tokens, sh))
+		return (free_tokens(tokens));
+	ast = parse_ast(tokens);
 	free_tokens(tokens);
-	if (!cmds)
+	if (!ast)
 		return ;
-	expand_cmds(cmds, sh);
-	i = 0;
-	while (cmds->args && cmds->args[i] && cmds->args[i][0] == '\0')
-		i++;
-	if (!cmds->args || !cmds->args[i])
-		return (free_cmds(cmds));
-	sh->last_status = execute_cmds(cmds, sh);
-	free_cmds(cmds);
+	expand_ast(ast, sh);
+	sh->last_status = execute_ast(ast, sh);
+	free_ast(ast);
 }
 
 int	main(int argc, char **argv, char **envp)
