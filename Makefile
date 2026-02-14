@@ -6,7 +6,7 @@
 #    By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/17 12:54:11 by wintoo            #+#    #+#              #
-#    Updated: 2026/02/12 16:58:28 by wintoo           ###   ########.fr        #
+#    Updated: 2026/02/14 14:08:20 by wintoo           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ CC 		= cc
 CCFlags = -Wall -Wextra -Werror -g3
 LDFlags = -lreadline
 
-SRCS	= srcs/main.c srcs/signals.c srcs/lexer.c srcs/free.c srcs/error.c \
+SRCS	= srcs/main.c srcs/signals.c srcs/lexer.c srcs/free.c srcs/error.c  srcs/quote_checker.c\
 		srcs/mini_executor.c srcs/builtin.c srcs/built_in/mini_cd.c srcs/env_init.c \
 		srcs/built_in/mini_echo.c srcs/built_in/mini_env.c srcs/built_in/mini_pwd.c \
 		srcs/built_in/mini_unset.c srcs/built_in/mini_export.c srcs/built_in/mini_exit.c \

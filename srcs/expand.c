@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 20:07:36 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/12 17:28:56 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/14 15:07:22 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,38 @@ char	*expand_str(char *s, t_shell *sh)
 	return (res);
 }
 
+static int  has_quotes(const char *s)
+{
+    int i;
+
+    if (!s)
+        return (0);
+    i = 0;
+    while (s[i])
+    {
+        if (s[i] == '\'' || s[i] == '"')
+            return (1);
+        i++;
+	}
+    return (0);
+}
+
+static int  has_space(const char *s)
+{
+    int i;
+
+    if (!s)
+        return (0);
+    i = 0;
+    while (s[i])
+    {
+        if (ft_isspace(s[i]))
+            return (1);
+        i++;
+    }
+    return (0);
+}
+
 static void	expand_redir(t_redir *r, t_shell *sh)
 {
 	char	*org;
@@ -42,6 +74,18 @@ static void	expand_redir(t_redir *r, t_shell *sh)
 
 	if (!r || !r->target)
 		return ;
+
+	/* heredoc delimiter must NOT be wildcard-expanded */
+	if (r->type == T_HEREDOC)
+	{
+		tmp = expand_str(ft_strdup(r->target), sh);
+		free1p(&r->target);
+		r->target = tmp;
+		if (r->target)
+			unmask_wildcards(r->target);
+		return ;
+	}
+
 	org = ft_strdup(r->target);
 	if (!org)
 		return ;
@@ -54,16 +98,18 @@ static void	expand_redir(t_redir *r, t_shell *sh)
 	tmp = expand_wildcard_redir(r->target, &amb);
 	free1p(&r->target);
 	r->target = tmp;
+	if (!has_quotes(org) && has_space(r->target))
+		amb = 1;
 	if (amb || !r->target || r->target[0] == '\0')
 	{
 		print_err(org, NULL, "ambiguous redirect");
 		sh->last_status = 1;
 		free1p(&r->target);
 		r->target = NULL;
+		free(org);
+		return ;
 	}
-	else
-		unmask_wildcards(r->target);
-
+	unmask_wildcards(r->target);
 	free(org);
 }
 

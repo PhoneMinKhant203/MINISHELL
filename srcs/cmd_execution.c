@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/12 17:14:06 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/14 15:01:03 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,15 +106,17 @@ void	start_executor(t_cmd *cmds, t_shell *sh)
 	int		fd_in;
 	pid_t	last_pid;
 
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
 	fd_in = STDIN_FILENO;
 	last_pid = -1;
 	while (cmds)
 	{
 		if (cmds->next && pipe(fd_pipe) == -1)
-			return (perror("minishell: pipe"));
+			return (perror("minishell: pipe"), setup_signals());
 		last_pid = fork();
 		if (last_pid == -1)
-			return (perror("minishell: fork"));
+			return (perror("minishell: fork"), setup_signals());
 		if (last_pid == 0)
 			child_process(cmds, sh, fd_in, fd_pipe);
 		if (fd_in != STDIN_FILENO)
@@ -127,6 +129,7 @@ void	start_executor(t_cmd *cmds, t_shell *sh)
 		cmds = cmds->next;
 	}
 	wait_all_children(sh, last_pid);
+	setup_signals();
 }
 
 void	wait_all_children(t_shell *sh, pid_t last_pid)
@@ -134,9 +137,15 @@ void	wait_all_children(t_shell *sh, pid_t last_pid)
 	int		status;
 	pid_t	pid;
 
-	pid = waitpid(-1, &status, 0);
-	while (pid > 0)
+	while (1)
 	{
+		pid = waitpid(-1, &status, 0);
+		if (pid < 0)
+		{
+			if (errno == EINTR)
+				continue ;
+			break ;
+		}
 		if (pid == last_pid)
 		{
 			if (WIFEXITED(status))
@@ -151,6 +160,5 @@ void	wait_all_children(t_shell *sh, pid_t last_pid)
 			else if (WTERMSIG(status) == SIGINT)
 				write(1, "\n", 1);
 		}
-		pid = waitpid(-1, &status, 0);
 	}
 }

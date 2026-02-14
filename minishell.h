@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/12 16:57:34 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/14 14:10:28 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ typedef struct s_node
 extern volatile sig_atomic_t	g_signal;
 
 //Lexer
+char	*check_quotes(char *line, t_shell *sh);
 int		skip_spaces(char *s, int *i);
 int		is_operator(char c);
 char	*get_word(char *s, int *i);

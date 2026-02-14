@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:48:11 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/12 16:56:05 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/14 13:23:18 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	skip_spaces(char *s, int *i)
 
 int	is_operator(char c)
 {
-	return (c == '|' || c == '<' || c == '>' || c == '&');
+	return (c == '|' || c == '<' || c == '>' || c == '&' || c == '(' || c == ')');
 }
 
 char	*get_word(char *s, int *i)
@@ -76,5 +76,9 @@ t_token	*get_token(char *s, int *i)
 			return (*i += 2, new_token(ft_strdup(">>"), T_APPEND));
 		return ((*i)++, new_token(ft_strdup(">"), T_OUT));
 	}
+	if (s[*i] == '(')
+		return ((*i)++, new_token(ft_strdup("("), T_BAD));
+	if (s[*i] == ')')
+		return ((*i)++, new_token(ft_strdup(")"), T_BAD));
 	return (new_token(get_word(s, i), T_WORD));
 }

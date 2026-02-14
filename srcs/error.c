@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 15:09:54 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/10 13:38:55 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/14 14:52:21 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	print_err(char *arg, char *cmd, char *msg)
 	if (arg)
 	{
 		ft_putstr_fd(arg, 2);
-		if (ft_strncmp(cmd, "export", 7) == 0)
+		if (cmd && ft_strncmp(cmd, "export", 7) == 0)
 			ft_putstr_fd("'", 2);
 		ft_putstr_fd(": ", 2);
 	}
