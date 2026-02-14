@@ -1,0 +1,15 @@
+minishell$ exit
+minishell$ exit
+minishell$ exit
+minishell$ echo $?
+0
+minishell$ exit
+exit
+minishell$ exit
+minishell$ exit
+minishell$ exit
+minishell$ echo $?
+0
+minishell$ exit
+exit
+minishell$ exit
