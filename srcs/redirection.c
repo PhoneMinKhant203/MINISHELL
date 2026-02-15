@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 18:09:32 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/12 17:23:03 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/14 23:54:15 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,11 +52,22 @@ static int	handle_outfile(char *filename, int append)
 	return (0);
 }
 
-/*
- * Apply redirections in the same order as the user typed them.
- * bash will still create/truncate earlier output
- * files even if a later redirection fails (e.g. permission denied or missing).
- */
+static int	apply_redir(t_redir *r)
+{
+	if (r->type == T_IN)
+		return (handle_infile(r->target));
+	else if (r->type == T_OUT)
+		return (handle_outfile(r->target, 0));
+	else if (r->type == T_APPEND)
+		return (handle_outfile(r->target, 1));
+	else if (r->type == T_HEREDOC)
+	{
+		handle_heredoc(r->target);
+		return (0);
+	}
+	return (0);
+}
+
 int	setup_redirection(t_cmd *cmd)
 {
 	t_redir	*r;
@@ -68,23 +79,8 @@ int	setup_redirection(t_cmd *cmd)
 	{
 		if (!r->target)
 			return (-1);
-		if (r->type == T_IN)
-		{
-			if (handle_infile(r->target) == -1)
-				return (-1);
-		}
-		else if (r->type == T_OUT)
-		{
-			if (handle_outfile(r->target, 0) == -1)
-				return (-1);
-		}
-		else if (r->type == T_APPEND)
-		{
-			if (handle_outfile(r->target, 1) == -1)
-				return (-1);
-		}
-		else if (r->type == T_HEREDOC)
-			handle_heredoc(r->target);
+		if (apply_redir(r) == -1)
+			return (-1);
 		r = r->next;
 	}
 	return (0);

@@ -3,22 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   quote_checker.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 14:08:11 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/14 14:29:35 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/15 14:01:46 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static int	update_quote_state(char c, int *in_s, int *in_d)
+static void	update_quote_state(char c, int *in_s, int *in_d)
 {
 	if (c == '\'' && !(*in_d))
 		*in_s = !(*in_s);
 	else if (c == '"' && !(*in_s))
 		*in_d = !(*in_d);
-	return (0);
 }
 
 static int	has_unclosed_quotes(const char *s)
@@ -38,6 +37,15 @@ static int	has_unclosed_quotes(const char *s)
 	return (in_s || in_d);
 }
 
+static char	*handle_unexpected_eof(char *line, t_shell *sh)
+{
+	ft_putendl_fd("minishell: unexpected EOF while looking for matching quote", 2);
+	ft_putendl_fd("minishell: syntax error: unexpected end of file", 2);
+	sh->last_status = 130;
+	free(line);
+	return (NULL);
+}
+
 static char	*join_with_nl(char *a, char *b)
 {
 	char	*tmp;
@@ -48,7 +56,10 @@ static char	*join_with_nl(char *a, char *b)
 	tmp = ft_strjoin(a, "\n");
 	free(a);
 	if (!tmp)
-		return (free(b), NULL);
+	{
+		free(b);
+		return (NULL);
+	}
 	res = ft_strjoin(tmp, b);
 	free(tmp);
 	free(b);
@@ -71,13 +82,7 @@ char	*check_quotes(char *line, t_shell *sh)
 			return (NULL);
 		}
 		if (!more)
-		{
-			ft_putstr_fd("minishell: unexpected EOF while looking for matching quote", 2);
-			ft_putendl_fd("minishell: syntax error: unexpected end of file", 2);
-			sh->last_status = 130;
-			free(line);
-			return (NULL);
-		}
+			return (handle_unexpected_eof(line, sh));
 		line = join_with_nl(line, more);
 		if (!line)
 			return (NULL);

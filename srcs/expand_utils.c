@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/06 13:42:47 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/12 14:08:29 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/15 15:44:48 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,12 @@ void	handle_quote(char **res, char *s, int *i, t_shell *sh)
 	type = s[(*i)++];
 	while (s[*i] && s[*i] != type)
 	{
-		if (type == '\"' && s[*i] == '$')
+		if (type == '"' && s[*i] == '\\' && s[*i + 1] == '"')
+		{
+			*res = append_char(*res, s[++(*i)]);
+			(*i)++;
+		}
+		else if (type == '"' && s[*i] == '$')
 			handle_dollar(res, s, i, sh);
 		else
 			*res = append_char(*res, mask_wildcard_char(s[(*i)++]));

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:21:40 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/12 16:33:36 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/14 16:18:57 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 //
 // changed T_APPEND with T_HEREDOC
 //
-static int	is_stop(t_tktype t)
+
+int	is_stop(t_tktype t)
 {
 	return (t == T_PIPE || t == T_AND || t == T_OR);
 }
@@ -57,62 +58,38 @@ void	fill_args(t_cmd *cmd, t_token *tk)
 	cmd->args[i] = NULL;
 }
 
+static void	update_cmd_files(t_cmd *cmd, t_token *tk)
+{
+	if (tk->type == T_IN)
+	{
+		free1p(&cmd->infile);
+		cmd->infile = ft_strdup(tk->next->value);
+	}
+	else if (tk->type == T_OUT || tk->type == T_APPEND)
+	{
+		free1p(&cmd->outfile);
+		cmd->outfile = ft_strdup(tk->next->value);
+		cmd->append = (tk->type == T_APPEND);
+	}
+	else if (tk->type == T_HEREDOC)
+	{
+		free1p(&cmd->heredoc);
+		cmd->heredoc = ft_strdup(tk->next->value);
+	}
+}
+
 void	handle_redir(t_cmd *cmd, t_token *tk)
 {
 	t_redir	*r;
 
 	while (tk && !is_stop(tk->type))
 	{
-		if ((tk->type == T_IN || tk->type == T_OUT
-				|| tk->type == T_APPEND || tk->type == T_HEREDOC) && tk->next)
+		if ((tk->type >= T_IN && tk->type <= T_HEREDOC) && tk->next)
 		{
 			r = new_redir(tk->type, tk->next->value);
 			redir_add_back(cmd, r);
-		}
-		if (tk->type == T_IN && tk->next)
-		{
-			free1p(&cmd->infile);
-			cmd->infile = ft_strdup(tk->next->value);
-		}
-		else if ((tk->type == T_OUT || tk->type == T_APPEND) && tk->next)
-		{
-			free1p(&cmd->outfile);
-			cmd->outfile = ft_strdup(tk->next->value);
-			cmd->append = (tk->type == T_APPEND);
-		}
-		else if (tk->type == T_HEREDOC && tk->next)
-		{
-			free1p(&cmd->heredoc);
-			cmd->heredoc = ft_strdup(tk->next->value);
+			update_cmd_files(cmd, tk);
 		}
 		tk = tk->next;
 	}
-}
-
-t_cmd	*parse_one_cmd(t_token *tk)
-{
-	t_cmd	*cmd;
-	int		argc;
-
-	if (!tk || is_stop(tk->type))
-		return (NULL);
-	cmd = new_cmd();
-	if (!cmd)
-		return (NULL);
-	argc = count_args(tk);
-	cmd->args = malloc(sizeof(char *) * (argc + 1));
-	if (!cmd->args)
-		return (NULL);
-	fill_args(cmd, tk);
-	handle_redir(cmd, tk);
-	return (cmd);
-}
-
-t_token	*skip_to_pipe(t_token *tk)
-{
-	while (tk && tk->type != T_PIPE)
-		tk = tk->next;
-	if (tk && tk->type == T_PIPE)
-		tk = tk->next;
-	return (tk);
 }

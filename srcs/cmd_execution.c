@@ -3,69 +3,37 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_execution.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/14 15:01:03 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/14 16:55:11 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static int	is_directory(const char *p)
-{
-	struct stat	st;
-
-	if (!p)
-		return (0);
-	if (stat(p, &st) == -1)
-		return (0);
-	return (S_ISDIR(st.st_mode));
-}
-
-/*
-if (!path || path[0] == '\0' || !ft_strncmp(cmd->args[i], ".", 2)
-		|| !ft_strncmp(cmd->args[i], "..", 3)
-		|| !ft_strncmp(path, "IS_DIR", 7))
-		exe_error(cmd->args[i], path);
-*/
 void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 {
 	char	*path;
 	char	**env_arr;
-	int		err;
 
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
-	(void)sh;
 	if (!cmd->args || !cmd->args[i] || cmd->args[i][0] == '\0')
-	{
-		ft_putendl_fd("minishell: : command not found", 2);
 		exit(127);
-	}
-	if (ft_strchr(cmd->args[i], '/'))
-		path = ft_strdup(cmd->args[i]);
-	else
-		path = find_path(cmd->args[i], sh->env);
-	if (!path || path[0] == '\0' || ft_strncmp(path, "IS_DIR", 7) == 0)
-		exe_error(cmd->args[i], path);
-	if (ft_strchr(cmd->args[i], '/') && is_directory(path))
+	path = resolve_path(cmd, sh, i);
+	if (is_directory(path))
 	{
-		errno = EISDIR;
-		perror(cmd->args[i]);
+		ft_putendl_fd("minishell: Is a directory", 2);
 		free(path);
 		exit(126);
 	}
 	env_arr = env_to_array(sh->env);
 	execve(path, &cmd->args[i], env_arr);
-	err = errno;
-	errno = err;
-	perror(cmd->args[i]);
+	perror("execve");
 	free(path);
 	free2p(env_arr);
-	if (err == EACCES || err == EISDIR)
-		exit(126);
-	exit(127);
+	exit(126);
 }
 
 static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
@@ -74,7 +42,6 @@ static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
-
 	if (fdin != STDIN_FILENO)
 	{
 		dup2(fdin, STDIN_FILENO);
@@ -88,17 +55,11 @@ static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 	}
 	if (setup_redirection(cmd) == -1)
 		exit(1);
-
 	i = 0;
-	while (cmd->args && cmd->args[i] && cmd->args[i][0] == '\0')
-		i++;
-	if (!cmd->args || !cmd->args[i])
-		exit(0);
 	if (is_builtin(&cmd->args[i]))
 		exit(exe_builtin(&cmd->args[i], sh));
 	child_exec_binary(cmd, sh, i);
 }
-
 
 void	start_executor(t_cmd *cmds, t_shell *sh)
 {
@@ -119,46 +80,9 @@ void	start_executor(t_cmd *cmds, t_shell *sh)
 			return (perror("minishell: fork"), setup_signals());
 		if (last_pid == 0)
 			child_process(cmds, sh, fd_in, fd_pipe);
-		if (fd_in != STDIN_FILENO)
-			close(fd_in);
-		if (cmds->next)
-		{
-			close(fd_pipe[1]);
-			fd_in = fd_pipe[0];
-		}
+		update_parent_fds(&fd_in, fd_pipe, cmds->next);
 		cmds = cmds->next;
 	}
 	wait_all_children(sh, last_pid);
 	setup_signals();
-}
-
-void	wait_all_children(t_shell *sh, pid_t last_pid)
-{
-	int		status;
-	pid_t	pid;
-
-	while (1)
-	{
-		pid = waitpid(-1, &status, 0);
-		if (pid < 0)
-		{
-			if (errno == EINTR)
-				continue ;
-			break ;
-		}
-		if (pid == last_pid)
-		{
-			if (WIFEXITED(status))
-				sh->last_status = WEXITSTATUS(status);
-			else if (WIFSIGNALED(status))
-				sh->last_status = 128 + WTERMSIG(status);
-		}
-		if (WIFSIGNALED(status))
-		{
-			if (WTERMSIG(status) == SIGQUIT)
-				write(1, "Quit (core dumped)\n", 19);
-			else if (WTERMSIG(status) == SIGINT)
-				write(1, "\n", 1);
-		}
-	}
 }

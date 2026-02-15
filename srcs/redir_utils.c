@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redir_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 16:24:08 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/10 17:15:32 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/14 23:52:27 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ t_redir	*new_redir(t_tktype type, const char *target)
 	r->next = NULL;
 	return (r);
 }
-
 
 void	redir_add_back(t_cmd *cmd, t_redir *node)
 {

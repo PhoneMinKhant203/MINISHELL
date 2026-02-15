@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/14 14:10:28 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/15 00:49:10 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ void	handle_redir(t_cmd *cmd, t_token *tok);
 t_cmd	*parse_one_cmd(t_token *tok);
 t_token	*skip_to_pipe(t_token *tok);
 t_cmd	*parse(t_token *tok);
+int		is_stop(t_tktype t);
 
 //Redirection
 t_redir	*new_redir(t_tktype type, const char *target);
@@ -139,6 +140,9 @@ void	handle_dollar(char **res, char *s, int *i, t_shell *sh);
 void	handle_quote(char **res, char *s, int *i, t_shell *sh);
 char	*expand_str(char *s, t_shell *sh);
 void	expand_cmds(t_cmd *cmds, t_shell *sh);
+void	expand_redir(t_redir *r, t_shell *sh);
+int		has_quotes(const char *s);
+int		has_space(const char *s);
 
 //Built in
 int		is_builtin(char **args);
@@ -171,11 +175,13 @@ void	free1p(char **s);
 void	start_executor(t_cmd *cmds, t_shell *sh);
 void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i);
 void	wait_all_children(t_shell *sh, pid_t last_pid);
+char	*resolve_path(t_cmd *cmd, t_shell *sh, int i);
+void	update_parent_fds(int *fd_in, int fd_pipe[2], t_cmd *next);
+int		is_directory(const char *p);
 
 //Execucator
 char	**env_to_array(t_env *env);
 char	*find_path(char *cmd, t_env *env_list);
-int		exe_cmd(t_cmd *cmd, t_env *env_list);
 int		execute_cmds(t_cmd *cmds, t_shell *sh);
 
 // Wildcard
@@ -185,6 +191,8 @@ char	**expand_wildcards_argv(char **argv, int *changed);
 char	*expand_wildcard_redir(const char *pattern, int *ambiguous);
 void	unmask_wildcards(char *s);
 char	mask_wildcard_char(char c);
+char	**list_matches(const char *pattern, int *count);
+int		push_str(char ***arr, int *len, char *s);
 
 int		validate_syntax(t_token *tk, t_shell *sh);
 /* Parser (bonus && ||) */
@@ -194,5 +202,8 @@ void	free_ast(t_node *node);
 /* Executor (bonus && ||) */
 int		execute_ast(t_node *node, t_shell *sh);
 void	expand_ast(t_node *node, t_shell *sh);
+
+// Input Handler 
+void	process_an_input(char *line, t_shell *sh);
 
 #endif

@@ -3,31 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:19:45 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/12 16:34:18 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/14 16:25:42 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-t_cmd	*new_cmd(void)
-{
-	t_cmd	*cmd;
-
-	cmd = malloc(sizeof(t_cmd));
-	if (!cmd)
-		return (NULL);
-	cmd->args = NULL;
-	cmd->redirs = NULL;
-	cmd->infile = NULL;
-	cmd->outfile = NULL;
-	cmd->append = 0;
-	cmd->heredoc = NULL;
-	cmd->next = NULL;
-	return (cmd);
-}
 
 static t_node	*new_node(t_ntype type, t_node *l, t_node *r, t_cmd *p)
 {
@@ -55,7 +38,7 @@ static t_cmd	*parse_pipeline(t_token **tk)
 	{
 		new = parse_one_cmd(*tk);
 		if (!new)
-			return (NULL);
+			return (free_cmds(head), NULL);
 		if (!head)
 			head = new;
 		else
@@ -70,69 +53,51 @@ static t_cmd	*parse_pipeline(t_token **tk)
 	return (head);
 }
 
+static t_node	*link_node(t_node *left, t_token **tok)
+{
+	t_node		*right;
+	t_cmd		*p;
+	t_tktype	op;
+
+	op = (*tok)->type;
+	*tok = (*tok)->next;
+	p = parse_pipeline(tok);
+	if (!p)
+	{
+		free_ast(left);
+		return (NULL);
+	}
+	right = new_node(N_PIPELINE, NULL, NULL, p);
+	if (!right)
+	{
+		free_cmds(p);
+		free_ast(left);
+		return (NULL);
+	}
+	if (op == T_AND)
+		return (new_node(N_AND, left, right, NULL));
+	return (new_node(N_OR, left, right, NULL));
+}
+
 t_node	*parse_ast(t_token *tok)
 {
 	t_node	*left;
-	t_node	*right;
 	t_cmd	*p;
-	t_tktype	op;
 
 	p = parse_pipeline(&tok);
 	if (!p)
 		return (NULL);
 	left = new_node(N_PIPELINE, NULL, NULL, p);
 	if (!left)
-		return (free_cmds(p), NULL);
+	{
+		free_cmds(p);
+		return (NULL);
+	}
 	while (tok && (tok->type == T_AND || tok->type == T_OR))
 	{
-		op = tok->type;
-		tok = tok->next;
-		p = parse_pipeline(&tok);
-		if (!p)
-			return (free_ast(left), NULL);
-		right = new_node(N_PIPELINE, NULL, NULL, p);
-		if (!right)
-			return (free_cmds(p), free_ast(left), NULL);
-		if (op == T_AND)
-			left = new_node(N_AND, left, right, NULL);
-		else
-			left = new_node(N_OR, left, right, NULL);
+		left = link_node(left, &tok);
 		if (!left)
-			return (free_ast(right), NULL);
+			return (NULL);
 	}
 	return (left);
-}
-
-void	free_ast(t_node *node)
-{
-	if (!node)
-		return ;
-	free_ast(node->left);
-	free_ast(node->right);
-	if (node->type == N_PIPELINE)
-		free_cmds(node->pipeline);
-	free(node);
-}
-
-t_cmd	*parse(t_token *token)
-{
-	t_cmd	*head;
-	t_cmd	*tail;
-	t_cmd	*new;
-
-	head = NULL;
-	tail = NULL;
-	while (token)
-	{
-		new = parse_one_cmd(token);
-		if (!new)
-			return (NULL);
-		if (!head)
-			head = new;
-		else
-			tail->next = new;
-		tail = new;
-		token = skip_to_pipe(token);
-	}
-	return (head);
 }
