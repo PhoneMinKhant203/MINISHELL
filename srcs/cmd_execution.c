@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/16 18:38:50 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 19:13:42 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 {
 	char	*path;
 	char	**env_arr;
+	int		err;
 
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
@@ -24,7 +25,9 @@ void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 	path = resolve_path(cmd, sh, i);
 	if (is_directory(path))
 	{
-		ft_putendl_fd("minishell: Is a directory", 2);
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd(cmd->args[i], 2);
+		ft_putendl_fd(": Is a directory", 2);
 		free(path);
 		exit(126);
 	}
@@ -36,10 +39,16 @@ void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 		exit(1);
 	}
 	execve(path, &cmd->args[i], env_arr);
-	perror("execve");
+	err = errno;
+	ft_putstr_fd("minishell: ", 2);
+	ft_putstr_fd(cmd->args[i], 2);
+	ft_putstr_fd(": ", 2);
+	ft_putendl_fd(strerror(err), 2);
 	free(path);
 	free2p(env_arr);
-	exit(126);
+	if (err == EACCES || err == EISDIR)
+		exit(126);
+	exit(127);
 }
 
 static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
