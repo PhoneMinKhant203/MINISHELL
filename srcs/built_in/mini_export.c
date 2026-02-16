@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:48:07 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/08 15:45:45 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 18:48:04 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,10 @@ int	mini_export(char **args, t_env **env)
 	{
 		if (!is_valid_var_name(args[i]))
 		{
-			print_err(args[i], "export: `", "not a valid identifier");
+			if (args[i][0] == '-' && args[i][1] != '\0')
+				print_err(args[i], "export: `", "invalid option");
+			else
+				print_err(args[i], "export: `", "not a valid identifier");
 			exit_status = 1;
 		}
 		else

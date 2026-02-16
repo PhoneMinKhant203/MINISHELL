@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/16 17:42:01 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 18:36:36 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,8 +118,8 @@ int		is_stop(t_tktype t);
 //Redirection
 t_redir	*new_redir(t_tktype type, const char *target);
 void	redir_add_back(t_cmd *cmd, t_redir *node);
-int		setup_redirection(t_cmd *cmd);
-void	handle_heredoc(char *delimiter);
+int		setup_redirection(t_cmd *cmd, t_shell *sh);
+void	handle_heredoc(const char *delimiter_raw, t_shell *sh);
 
 //Utils
 void	free2p(char **s);

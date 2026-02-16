@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/16 17:49:19 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 18:38:50 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 		dup2(p_fd[1], STDOUT_FILENO);
 		close(p_fd[1]);
 	}
-	if (setup_redirection(cmd) == -1)
+	if (setup_redirection(cmd, sh) == -1)
 		exit(1);
 	i = 0;
 	if (is_builtin(&cmd->args[i]))

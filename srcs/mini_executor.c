@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 17:07:58 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/12 16:36:16 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 18:38:23 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static int	handle_builtin(t_cmd *cmd, t_shell *sh, int i)
 
 	tmp_in = dup(STDIN_FILENO);
 	tmp_out = dup(STDOUT_FILENO);
-	if (setup_redirection(cmd) == 0)
+	if (setup_redirection(cmd, sh) == 0)
 		sh->last_status = exe_builtin(&cmd->args[i], sh);
 	else
 		sh->last_status = 1;
@@ -36,7 +36,7 @@ int	execute_cmds(t_cmd *cmds, t_shell *sh)
 		return (0);
 	if (!cmds->args || !cmds->args[0])
 	{
-		if (setup_redirection(cmds) == -1)
+		if (setup_redirection(cmds, sh) == -1)
 			return (sh->last_status = 1);
 		return (sh->last_status = 0);
 	}

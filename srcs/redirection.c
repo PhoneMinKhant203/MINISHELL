@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 18:09:32 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/14 23:54:15 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/16 18:37:13 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ static int	handle_outfile(char *filename, int append)
 	return (0);
 }
 
-static int	apply_redir(t_redir *r)
+static int	apply_redir(t_redir *r, t_shell *sh)
 {
 	if (r->type == T_IN)
 		return (handle_infile(r->target));
@@ -62,13 +62,13 @@ static int	apply_redir(t_redir *r)
 		return (handle_outfile(r->target, 1));
 	else if (r->type == T_HEREDOC)
 	{
-		handle_heredoc(r->target);
+		handle_heredoc(r->target, sh);
 		return (0);
 	}
 	return (0);
 }
 
-int	setup_redirection(t_cmd *cmd)
+int	setup_redirection(t_cmd *cmd, t_shell *sh)
 {
 	t_redir	*r;
 
@@ -79,7 +79,7 @@ int	setup_redirection(t_cmd *cmd)
 	{
 		if (!r->target)
 			return (-1);
-		if (apply_redir(r) == -1)
+		if (apply_redir(r, sh) == -1)
 			return (-1);
 		r = r->next;
 	}

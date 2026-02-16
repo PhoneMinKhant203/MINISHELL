@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand_redir.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 23:22:05 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/14 23:22:43 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/16 18:40:16 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,17 +28,6 @@ static int	check_ambiguous(t_redir *r, char *org, int amb, t_shell *sh)
 	return (0);
 }
 
-static void	handle_heredoc_expansion(t_redir *r, t_shell *sh)
-{
-	char	*tmp;
-
-	tmp = expand_str(ft_strdup(r->target), sh);
-	free1p(&r->target);
-	r->target = tmp;
-	if (r->target)
-		unmask_wildcards(r->target);
-}
-
 void	expand_redir(t_redir *r, t_shell *sh)
 {
 	char	*org;
@@ -48,10 +37,7 @@ void	expand_redir(t_redir *r, t_shell *sh)
 	if (!r || !r->target)
 		return ;
 	if (r->type == T_HEREDOC)
-	{
-		handle_heredoc_expansion(r, sh);
 		return ;
-	}
 	org = ft_strdup(r->target);
 	if (!org)
 		return ;

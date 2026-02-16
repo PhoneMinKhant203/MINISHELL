@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expand.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 20:07:36 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/14 23:21:43 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/16 18:35:11 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,14 +38,77 @@ static void	process_cmd_argv(t_cmd *cmd, t_shell *sh)
 {
 	int		i;
 	int		changed;
+	int		had_quotes;
+	char	*expanded;
+	char	**out;
+	int		out_len;
+	int		start;
+	int		j;
+	char	*part;
 	char	**new_argv;
 
+	out = NULL;
+	out_len = 0;
 	i = 0;
 	while (cmd->args && cmd->args[i])
 	{
-		cmd->args[i] = expand_str(cmd->args[i], sh);
+		had_quotes = has_quotes(cmd->args[i]);
+		expanded = expand_str(ft_strdup(cmd->args[i]), sh);
+		if (!expanded)
+		{
+			free2p(out);
+			free2p(cmd->args);
+			cmd->args = NULL;
+			return ;
+		}
+		if (had_quotes)
+		{
+			if (!push_str(&out, &out_len, expanded))
+			{
+				free1p(&expanded);
+				free2p(out);
+				free2p(cmd->args);
+				cmd->args = NULL;
+				return ;
+			}
+		}
+		else
+		{
+			j = 0;
+			while (expanded[j])
+			{
+				while (expanded[j] && ft_isspace(expanded[j]))
+					j++;
+				if (!expanded[j])
+					break ;
+				start = j;
+				while (expanded[j] && !ft_isspace(expanded[j]))
+					j++;
+				part = ft_substr(expanded, start, j - start);
+				if (!part)
+				{
+					free1p(&expanded);
+					free2p(out);
+					free2p(cmd->args);
+					cmd->args = NULL;
+					return ;
+				}
+				if (!push_str(&out, &out_len, part))
+				{
+					free1p(&expanded);
+					free1p(&part);
+					free2p(out);
+					free2p(cmd->args);
+					cmd->args = NULL;
+					return ;
+				}
+			}
+			free1p(&expanded);
+		}
 		i++;
 	}
+	free2p(cmd->args);
+	cmd->args = out;
 	if (cmd->args)
 	{
 		changed = 0;
