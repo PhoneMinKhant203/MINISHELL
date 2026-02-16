@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_execution_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 16:53:39 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/14 16:53:54 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/16 17:45:14 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,22 @@ void	update_parent_fds(int *fd_in, int fd_pipe[2], t_cmd *next)
 char	*resolve_path(t_cmd *cmd, t_shell *sh, int i)
 {
 	char	*path;
+	t_env	*node;
 
 	if (ft_strchr(cmd->args[i], '/'))
 		path = ft_strdup(cmd->args[i]);
 	else
+	{
+		node = find_env_node(sh->env, "PATH");
+		if (!node || !node->value || node->value[0] == '\0')
+		{
+			ft_putstr_fd("minishell: ", 2);
+			ft_putstr_fd(cmd->args[i], 2);
+			ft_putendl_fd(": No such file or directory", 2);
+			exit(127);
+		}
 		path = find_path(cmd->args[i], sh->env);
+	}
 	if (!path || path[0] == '\0')
 	{
 		exe_error(cmd->args[i], path);

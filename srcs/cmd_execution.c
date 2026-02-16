@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_execution.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/14 16:55:11 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/16 17:49:19 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,12 @@ void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 		exit(126);
 	}
 	env_arr = env_to_array(sh->env);
+	if (!env_arr)
+	{
+		perror("minishell");
+		free(path);
+		exit(1);
+	}
 	execve(path, &cmd->args[i], env_arr);
 	perror("execve");
 	free(path);

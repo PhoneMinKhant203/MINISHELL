@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/16 16:01:30 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 17:42:01 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,7 @@ void	free2p(char **s);
 void	free_tokens(t_token *tok);
 void	free_cmds(t_cmd *cmd);
 void	free1p(char **s);
+void	free_env_node(t_env *node);
 
 //CMD_Execution
 void	start_executor(t_cmd *cmds, t_shell *sh);

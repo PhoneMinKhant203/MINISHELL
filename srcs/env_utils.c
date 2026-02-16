@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/06 17:31:27 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/08 15:52:46 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 17:47:57 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,22 @@ int	env_size(t_env *env)
 	return (i);
 }
 
+void	free_env_node(t_env *node)
+{
+	if (!node)
+		return ;
+	if (node->key)
+		free(node->key);
+	if (node->value)
+		free(node->value);
+	free(node);
+}
+
 char	**env_to_array(t_env *env)
 {
 	char	**envp;
 	char	*tmp;
+	char	*val;
 	int		i;
 
 	envp = malloc(sizeof(char *) * (env_size(env) + 1));
@@ -58,10 +70,14 @@ char	**env_to_array(t_env *env)
 	i = 0;
 	while (env)
 	{
+		envp[i] = NULL;
 		tmp = ft_strjoin(env->key, "=");
 		if (!tmp)
 			return (free2p(envp), NULL);
-		envp[i] = ft_strjoin(tmp, env->value);
+		val = env->value;
+		if (!val)
+			val = "";
+		envp[i] = ft_strjoin(tmp, val);
 		free1p(&tmp);
 		if (!envp[i])
 			return (free2p(envp), NULL);
@@ -71,3 +87,4 @@ char	**env_to_array(t_env *env)
 	envp[i] = NULL;
 	return (envp);
 }
+
