@@ -6,31 +6,37 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:10:39 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/10 12:58:26 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 16:48:25 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
 
-static void	update_cwd_env(t_env **env)
+static void	update_pwd_vars(t_env **env, char old_pwd[4096], int print_pwd)
 {
 	char	new_pwd[4096];
-	char	old_pwd[4096];
 
-	if (!getcwd(old_pwd, 4096))
-		old_pwd[0] = '\0';
 	if (old_pwd[0] != '\0')
 		add_or_update_env(env, "OLDPWD", old_pwd);
-	if (getcwd(new_pwd, 4096))
+	if (getcwd(new_pwd, sizeof(new_pwd)))
+	{
 		add_or_update_env(env, "PWD", new_pwd);
+		if (print_pwd)
+			printf("%s\n", new_pwd);
+	}
 }
 
 int	mini_cd(char **args, t_env **env)
 {
 	char	*path;
+	char	old_pwd[4096];
+	int		print_pwd;
 
+	print_pwd = 0;
 	if (args[1] && args[2])
 		return (ft_putendl_fd("minishell: cd: too many arguments", 2), 1);
+	if (!getcwd(old_pwd, sizeof(old_pwd)))
+		old_pwd[0] = '\0';
 	if (!args[1] || ft_strncmp(args[1], "~", 2) == 0)
 	{
 		path = env_get(*env, "HOME");
@@ -42,13 +48,13 @@ int	mini_cd(char **args, t_env **env)
 		path = env_get(*env, "OLDPWD");
 		if (!path)
 			return (ft_putendl_fd("minishell: cd: OLDPWD not set", 2), 1);
-		printf("%s\n", path);
+		print_pwd = 1;
 	}
 	else
 		path = args[1];
 	if (chdir(path) != 0)
 		return (ft_putstr_fd("minishell: cd: ", 2), perror(path), 1);
-	update_cwd_env(env);
+	update_pwd_vars(env, old_pwd, print_pwd);
 	return (0);
 }
 

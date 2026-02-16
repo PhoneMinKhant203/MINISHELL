@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:56:25 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/15 14:00:52 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/16 17:00:38 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,6 @@ static void	shell_loop(t_shell *sh)
 		{
 			sh->last_status = 130;
 			g_signal = 0;
-			free(input);
-			continue ;
 		}
 		if (*input)
 		{
@@ -109,6 +107,7 @@ int	main(int argc, char **argv, char **envp)
 		return (1);
 	sh.env = init_env(envp);
 	sh.last_status = 0;
+	update_shlvl(&sh);
 	setup_signals();
 	shell_loop(&sh);
 	if (!sh.env)

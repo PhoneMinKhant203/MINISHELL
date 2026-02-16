@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/15 00:49:10 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/16 16:01:30 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,7 @@ void	expand_redir(t_redir *r, t_shell *sh);
 int		has_quotes(const char *s);
 int		has_space(const char *s);
 
+void	update_shlvl(t_shell *sh);
 //Built in
 int		is_builtin(char **args);
 int		exe_builtin(char **args, t_shell *sh);
