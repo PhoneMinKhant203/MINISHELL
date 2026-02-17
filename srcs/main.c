@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:56:25 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/16 17:00:38 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 14:20:23 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,13 @@ static void	shell_loop(t_shell *sh)
 	{
 		input = readline("minishell$ ");
 		if (!input)
+		{
+			if (isatty(STDIN_FILENO))
+				ft_putendl_fd("exit", 1);
+			sh->should_exit = 1;
+			sh->exit_code = sh->last_status;
 			break ;
+		}
 		if (g_signal == SIGINT)
 		{
 			sh->last_status = 130;
@@ -95,6 +101,8 @@ static void	shell_loop(t_shell *sh)
 		}
 		if (input)
 			free(input);
+		if (sh->should_exit)
+			break ;
 	}
 }
 
@@ -107,10 +115,16 @@ int	main(int argc, char **argv, char **envp)
 		return (1);
 	sh.env = init_env(envp);
 	sh.last_status = 0;
+	sh.should_exit = 0;
+	sh.exit_code = 0;
 	update_shlvl(&sh);
 	setup_signals();
 	shell_loop(&sh);
 	if (!sh.env)
 		printf("exit\n");
-	return (free_env(sh.env), sh.last_status);
+	rl_clear_history();
+	free_env(sh.env);
+	if (sh.should_exit)
+		return (sh.exit_code);
+	return (sh.last_status);
 }

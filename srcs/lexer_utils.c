@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:48:11 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/14 15:48:04 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/17 13:17:44 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,13 @@ int	skip_spaces(char *s, int *i)
 	return (1);
 }
 
-int	is_operator(char c)
+static int	is_operator(char c)
 {
 	return (c == '|' || c == '<' || c == '>'
 		|| c == '&' || c == '(' || c == ')');
 }
 
-char	*get_word(char *s, int *i)
+static char	*get_word(char *s, int *i)
 {
 	int		start;
 	char	quote;

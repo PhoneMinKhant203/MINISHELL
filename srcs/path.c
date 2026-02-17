@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/07 12:31:23 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/10 12:45:54 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 13:11:40 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,6 @@ char	*find_path(char *cmd, t_env *env_list)
 	{
 		if (stat(cmd, &st) == 0)
 		{
-			if (S_ISDIR(st.st_mode))
-				return (ft_strdup("IS_DIR"));
 			if (access(cmd, X_OK) == 0)
 				return (ft_strdup(cmd));
 		}

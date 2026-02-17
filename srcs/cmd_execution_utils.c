@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 16:53:39 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/16 17:45:14 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 13:12:53 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ char	*resolve_path(t_cmd *cmd, t_shell *sh, int i)
 	}
 	if (!path || path[0] == '\0')
 	{
-		exe_error(cmd->args[i], path);
+		exe_error(cmd->args[i]);
 		exit(127);
 	}
 	return (path);

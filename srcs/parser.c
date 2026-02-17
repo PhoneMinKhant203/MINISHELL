@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:19:45 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/14 16:25:42 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/17 13:54:23 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,25 +58,23 @@ static t_node	*link_node(t_node *left, t_token **tok)
 	t_node		*right;
 	t_cmd		*p;
 	t_tktype	op;
+	t_node		*parent;
 
 	op = (*tok)->type;
 	*tok = (*tok)->next;
 	p = parse_pipeline(tok);
 	if (!p)
-	{
-		free_ast(left);
-		return (NULL);
-	}
+		return (free_ast(left), NULL);
 	right = new_node(N_PIPELINE, NULL, NULL, p);
 	if (!right)
-	{
-		free_cmds(p);
-		free_ast(left);
-		return (NULL);
-	}
+		return (free_cmds(p), free_ast(left), NULL);
 	if (op == T_AND)
-		return (new_node(N_AND, left, right, NULL));
-	return (new_node(N_OR, left, right, NULL));
+		parent = new_node(N_AND, left, right, NULL);
+	else
+		parent = new_node(N_OR, left, right, NULL);
+	if (!parent)
+		return (free_ast(left), free_ast(right), NULL);
+	return (parent);
 }
 
 t_node	*parse_ast(t_token *tok)

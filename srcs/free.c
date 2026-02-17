@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 15:05:50 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/10 16:49:59 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 12:57:32 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,6 @@ void	free_cmds(t_cmd *cmd)
 			free2p(cmd->args);
 		free_redirs(cmd->redirs);
 		cmd->redirs = NULL;
-		free1p(&cmd->infile);
-		free1p(&cmd->outfile);
-		free1p(&cmd->heredoc);
 		free(cmd);
 		cmd = tmp;
 	}

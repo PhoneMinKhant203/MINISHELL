@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:06:31 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/10 14:02:08 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 14:16:22 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,6 @@ int	exe_builtin(char **args, t_shell *sh)
 	if (ft_strncmp(args[0], "unset", 6) == 0)
 		return (mini_unset(args, &sh->env));
 	if (ft_strncmp(args[0], "exit", 5) == 0)
-		return (mini_exit(args, sh), 1);
+		return (mini_exit(args, sh));
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 21:40:24 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/10 14:23:22 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 16:21:26 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,25 +39,32 @@ static int	is_all_digits(char *str)
 	return (1);
 }
 
-void	mini_exit(char **args, t_shell *sh)
+int	mini_exit(char **args, t_shell *sh)
 {
-	ft_putendl_fd("exit", 1);
+	int	code;
+
+	if (isatty(STDIN_FILENO))
+		ft_putendl_fd("exit", 1);
+	code = sh->last_status;
 	if (!args[1])
 	{
-		free_env(sh->env);
-		exit(sh->last_status);
+		sh->should_exit = 1;
+		sh->exit_code = (unsigned char)code;
+		return (sh->exit_code);
 	}
 	if (!is_all_digits(args[1]))
 	{
-		print_err(args[1], "exit: ", "numeric argument required");
-		free_env(sh->env);
-		exit(2);
+		sh->should_exit = 1;
+		sh->exit_code = 2;
+		return (print_err(args[1], "exit: ", "numeric argument required"), 2);
 	}
 	if (args[2])
 	{
 		sh->last_status = 1;
-		return (print_err(NULL, "exit: ", "too many arguments"));
+		return (print_err(NULL, "exit: ", "too many arguments"), 1);
 	}
-	free_env(sh->env);
-	exit((unsigned char)ft_atoi(args[1]));
+	sh->should_exit = 1;
+	sh->exit_code = (unsigned char)ft_atoi(args[1]);
+	return (sh->exit_code);
 }
+

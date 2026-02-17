@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:55:51 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/06 13:34:20 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 13:20:15 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ t_token	*new_token(char *val, t_tktype type)
 
 	token = malloc(sizeof(t_token));
 	if (!token)
-		return (NULL);
+		return (free(val), NULL);
 	token->value = val;
 	token->type = type;
 	token->next = NULL;
@@ -41,7 +41,7 @@ t_token	*tokenize(char *line)
 			break ;
 		new = get_token(line, &i);
 		if (!new)
-			return (NULL);
+			return (free_tokens(head), NULL);
 		if (!head)
 			head = new;
 		else

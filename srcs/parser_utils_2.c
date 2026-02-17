@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 15:53:38 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/16 19:52:22 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 13:51:28 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,6 @@ t_cmd	*new_cmd(void)
 		return (NULL);
 	cmd->args = NULL;
 	cmd->redirs = NULL;
-	cmd->infile = NULL;
-	cmd->outfile = NULL;
-	cmd->append = 0;
-	cmd->heredoc = NULL;
 	cmd->next = NULL;
 	return (cmd);
 }
@@ -44,6 +40,7 @@ t_cmd	*parse_one_cmd(t_token *tk)
 {
 	t_cmd	*cmd;
 	int		argc;
+	int		i;
 
 	if (!tk || is_stop(tk->type))
 		return (NULL);
@@ -53,11 +50,11 @@ t_cmd	*parse_one_cmd(t_token *tk)
 	argc = count_args(tk);
 	cmd->args = malloc(sizeof(char *) * (argc + 1));
 	if (!cmd->args)
-	{
-		free(cmd);
-		return (NULL);
-	}
-	fill_args(cmd, tk);
-	handle_redir(cmd, tk);
+		return (free(cmd), NULL);
+	i = 0;
+	while (i <= argc)
+		cmd->args[i++] = NULL;
+	if (!fill_args(cmd, tk) || !handle_redir(cmd, tk))
+		return (free_cmds(cmd), NULL);
 	return (cmd);
 }

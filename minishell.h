@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/16 19:59:20 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 14:18:02 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,12 +50,6 @@ typedef struct s_cmd
 {
 	char			**args;
 	t_redir			*redirs;
-	char			*infile;
-	char			*outfile;
-	int				append;
-	char			*heredoc;
-	int				fd_in;
-	int				fd_out;
 	struct s_cmd	*next;
 }	t_cmd;
 
@@ -77,6 +71,8 @@ typedef struct s_shell
 {
 	t_env	*env;
 	int		last_status;
+	int		should_exit;
+	int		exit_code;
 }	t_shell;
 
 typedef enum e_ntype
@@ -99,8 +95,6 @@ extern volatile sig_atomic_t	g_signal;
 //Lexer
 char	*check_quotes(char *line, t_shell *sh);
 int		skip_spaces(char *s, int *i);
-int		is_operator(char c);
-char	*get_word(char *s, int *i);
 t_token	*new_token(char *val, t_tktype type);
 t_token	*get_token(char *s, int *i);
 t_token	*tokenize(char *line);
@@ -108,8 +102,8 @@ t_token	*tokenize(char *line);
 //Parser
 t_cmd	*new_cmd(void);
 int		count_args(t_token *tok);
-void	fill_args(t_cmd *cmd, t_token *tok);
-void	handle_redir(t_cmd *cmd, t_token *tok);
+int		fill_args(t_cmd *cmd, t_token *tok);
+int		handle_redir(t_cmd *cmd, t_token *tok);
 t_cmd	*parse_one_cmd(t_token *tok);
 int		is_stop(t_tktype t);
 
@@ -127,7 +121,8 @@ void	free_cmds(t_cmd *cmd);
 void	free_tokens(t_token *tok);
 void	free_env(t_env *env);
 void	print_err(char *arg, char *cmd, char *msg);
-void	exe_error(char *arg, char *path);
+void	exe_error(char *arg);
+void	free_env_node(t_env *node);
 
 //Expand
 t_env	*new_env_node(char *key, char *value);
@@ -151,7 +146,7 @@ int		mini_cd(char **args, t_env **env);
 int		mini_echo(char **args);
 int		mini_pwd(void);
 int		mini_env(t_env *env);
-void	mini_exit(char **args, t_shell *sh);
+int		mini_exit(char **args, t_shell *sh);
 t_env	*find_env_node(t_env *env, char *key);
 void	add_or_update_env(t_env **env, char *key, char *value);
 int		mini_export(char **args, t_env **env);
@@ -161,13 +156,6 @@ void	print_sorted_env(t_env *env);
 
 //Signal
 void	setup_signals(void);
-
-//Free
-void	free2p(char **s);
-void	free_tokens(t_token *tok);
-void	free_cmds(t_cmd *cmd);
-void	free1p(char **s);
-void	free_env_node(t_env *node);
 
 //CMD_Execution
 void	start_executor(t_cmd *cmds, t_shell *sh);

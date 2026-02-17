@@ -3,14 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   wildcards.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 13:55:54 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/15 00:47:03 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/17 13:27:23 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
+
+static void	free_matches_tail(char **m, int start)
+{
+	int	i;
+
+	if (!m)
+		return ;
+	i = start;
+	while (m[i])
+	{
+		free(m[i]);
+		i++;
+	}
+	free(m);
+}
 
 static int	append_matches(char ***out, int *out_len, char **m, int *changed)
 {
@@ -21,7 +36,7 @@ static int	append_matches(char ***out, int *out_len, char **m, int *changed)
 	while (m[j])
 	{
 		if (!push_str(out, out_len, m[j]))
-			return (0);
+			return (free_matches_tail(m, j), 0);
 		j++;
 	}
 	free(m);
@@ -32,15 +47,26 @@ static int	process_arg(char *arg, char ***out, int *len, int *changed)
 {
 	char	**m;
 	int		mc;
+	char	*dup;
 
 	if (!contains_wildcard(arg))
-		return (push_str(out, len, ft_strdup(arg)));
+	{
+		dup = ft_strdup(arg);
+		if (!dup)
+			return (0);
+		if (!push_str(out, len, dup))
+			return (free(dup), 0);
+		return (1);
+	}
 	m = list_matches(arg, &mc);
 	if (m && mc > 0)
 		return (append_matches(out, len, m, changed));
-	if (m)
-		free(m);
-	return (push_str(out, len, ft_strdup(arg)));
+	dup = ft_strdup(arg);
+	if (!dup)
+		return (0);
+	if (!push_str(out, len, dup))
+		return (free(dup), 0);
+	return (1);
 }
 
 char	**expand_wildcards_argv(char **argv, int *changed)

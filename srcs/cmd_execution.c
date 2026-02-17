@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/16 19:58:02 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 13:31:55 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,10 +89,23 @@ void	start_executor(t_cmd *cmds, t_shell *sh)
 	while (cmds)
 	{
 		if (cmds->next && pipe(fd_pipe) == -1)
+		{
+			if (fd_in != STDIN_FILENO)
+				close(fd_in);
 			return (perror("minishell: pipe"), setup_signals());
+		}
 		last_pid = fork();
 		if (last_pid == -1)
+		{
+			if (cmds->next)
+			{
+				close(fd_pipe[0]);
+				close(fd_pipe[1]);
+			}
+			if (fd_in != STDIN_FILENO)
+				close(fd_in);
 			return (perror("minishell: fork"), setup_signals());
+		}
 		if (last_pid == 0)
 			child_process(cmds, sh, fd_in, fd_pipe);
 		update_parent_fds(&fd_in, fd_pipe, cmds->next);
