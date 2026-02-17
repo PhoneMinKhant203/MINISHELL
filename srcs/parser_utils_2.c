@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils_2.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 15:53:38 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/14 16:26:49 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/16 19:52:22 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,29 +21,6 @@ void	free_ast(t_node *node)
 	if (node->type == N_PIPELINE)
 		free_cmds(node->pipeline);
 	free(node);
-}
-
-t_cmd	*parse(t_token *token)
-{
-	t_cmd	*head;
-	t_cmd	*tail;
-	t_cmd	*new;
-
-	head = NULL;
-	tail = NULL;
-	while (token)
-	{
-		new = parse_one_cmd(token);
-		if (!new)
-			return (free_cmds(head), NULL);
-		if (!head)
-			head = new;
-		else
-			tail->next = new;
-		tail = new;
-		token = skip_to_pipe(token);
-	}
-	return (head);
 }
 
 t_cmd	*new_cmd(void)
@@ -61,15 +38,6 @@ t_cmd	*new_cmd(void)
 	cmd->heredoc = NULL;
 	cmd->next = NULL;
 	return (cmd);
-}
-
-t_token	*skip_to_pipe(t_token *tk)
-{
-	while (tk && tk->type != T_PIPE)
-		tk = tk->next;
-	if (tk && tk->type == T_PIPE)
-		tk = tk->next;
-	return (tk);
 }
 
 t_cmd	*parse_one_cmd(t_token *tk)

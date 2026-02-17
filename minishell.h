@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/16 18:36:36 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 19:59:20 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,8 +111,6 @@ int		count_args(t_token *tok);
 void	fill_args(t_cmd *cmd, t_token *tok);
 void	handle_redir(t_cmd *cmd, t_token *tok);
 t_cmd	*parse_one_cmd(t_token *tok);
-t_token	*skip_to_pipe(t_token *tok);
-t_cmd	*parse(t_token *tok);
 int		is_stop(t_tktype t);
 
 //Redirection
@@ -158,10 +156,8 @@ t_env	*find_env_node(t_env *env, char *key);
 void	add_or_update_env(t_env **env, char *key, char *value);
 int		mini_export(char **args, t_env **env);
 int		mini_unset(char **args, t_env **env);
-int		is_valid_var_name(char *str);
 void	sort_env_list(t_env *head);
 void	print_sorted_env(t_env *env);
-t_env	*copy_env_list(t_env *env);
 
 //Signal
 void	setup_signals(void);
@@ -175,7 +171,6 @@ void	free_env_node(t_env *node);
 
 //CMD_Execution
 void	start_executor(t_cmd *cmds, t_shell *sh);
-void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i);
 void	wait_all_children(t_shell *sh, pid_t last_pid);
 char	*resolve_path(t_cmd *cmd, t_shell *sh, int i);
 void	update_parent_fds(int *fd_in, int fd_pipe[2], t_cmd *next);
@@ -184,7 +179,6 @@ int		is_directory(const char *p);
 //Execucator
 char	**env_to_array(t_env *env);
 char	*find_path(char *cmd, t_env *env_list);
-int		execute_cmds(t_cmd *cmds, t_shell *sh);
 
 // Wildcard
 int		contains_wildcard(const char *s);

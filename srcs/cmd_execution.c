@@ -6,13 +6,13 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/16 19:13:42 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 19:58:02 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
+static void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 {
 	char	*path;
 	char	**env_arr;

@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:22:34 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/08 15:41:58 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 19:58:42 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	mini_env(t_env *env)
 	return (0);
 }
 
-t_env	*copy_env_list(t_env *env)
+static t_env	*copy_env_list(t_env *env)
 {
 	t_env	*new_list;
 	t_env	*curr;

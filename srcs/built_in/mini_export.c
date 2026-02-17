@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:48:07 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/16 18:48:04 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 19:57:25 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void	sort_env_list(t_env *head)
 	}
 }
 
-int	is_valid_var_name(char *str)
+static int	is_valid_var_name(char *str)
 {
 	int	i;
 

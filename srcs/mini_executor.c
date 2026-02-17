@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 17:07:58 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/16 18:38:23 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/16 19:59:26 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static int	handle_builtin(t_cmd *cmd, t_shell *sh, int i)
 	return (sh->last_status);
 }
 
-int	execute_cmds(t_cmd *cmds, t_shell *sh)
+static int	execute_cmds(t_cmd *cmds, t_shell *sh)
 {
 	if (!cmds)
 		return (0);
