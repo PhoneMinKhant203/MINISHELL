@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 18:17:36 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/17 17:58:18 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 15:04:41 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,44 +175,3 @@ void	handle_heredoc(const char *delimiter_raw, t_shell *sh)
 	dup2(fd[0], STDIN_FILENO);
 	close(fd[0]);
 }
-
-// void	handle_heredoc(const char *delimiter_raw, t_shell *sh)
-// {
-// 	int		fd[2];
-// 	char	*line;
-// 	char	*delimiter;
-// 	int		do_expand;
-
-// 	if (pipe(fd) == -1)
-// 	{
-// 		perror("minishell: pipe");
-// 		return ;
-// 	}
-// 	delimiter = strip_delim_quotes(delimiter_raw, &do_expand);
-// 	if (!delimiter)
-// 	{
-// 		close(fd[0]);
-// 		close(fd[1]);
-// 		return ;
-// 	}
-// 	while (1)
-// 	{
-// 		line = readline("> ");
-// 		if (!line || ft_strncmp(line, delimiter, ft_strlen(delimiter) + 1) == 0)
-// 		{
-// 			free(line);
-// 			break ;
-// 		}
-// 		if (do_expand)
-// 			line = expand_heredoc_line(line, sh);
-// 		if (!line)
-// 			break ;
-// 		write(fd[1], line, ft_strlen(line));
-// 		write(fd[1], "\n", 1);
-// 		free(line);
-// 	}
-// 	free(delimiter);
-// 	close(fd[1]);
-// 	dup2(fd[0], STDIN_FILENO);
-// 	close(fd[0]);
-// }

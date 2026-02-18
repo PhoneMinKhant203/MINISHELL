@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/08 15:17:24 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/08 15:52:14 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 16:56:52 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,4 +59,46 @@ t_env	*init_env(char **envp)
 		envp++;
 	}
 	return (head);
+}
+
+static char	*join_env_pair(t_env *env)
+{
+	char	*tmp;
+	char	*res;
+
+	tmp = ft_strjoin(env->key, "=");
+	if (!tmp)
+		return (NULL);
+	if (!env->value)
+		return (tmp);
+	res = ft_strjoin(tmp, env->value);
+	free(tmp);
+	return (res);
+}
+
+char	**env_to_array(t_env *env)
+{
+	char	**envp;
+	int		i;
+
+	envp = malloc(sizeof(char *) * (env_size(env) + 1));
+	if (!envp)
+		return (NULL);
+	envp[0] = NULL;
+	i = 0;
+	while (env)
+	{
+		envp[i] = join_env_pair(env);
+		if (!envp[i])
+		{
+			while (i > 0)
+				free(envp[--i]);
+			free(envp);
+			return (NULL);
+		}
+		i++;
+		env = env->next;
+	}
+	envp[i] = NULL;
+	return (envp);
 }

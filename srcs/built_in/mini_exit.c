@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 21:40:24 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/17 16:21:26 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 18:16:49 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,4 +67,3 @@ int	mini_exit(char **args, t_shell *sh)
 	sh->exit_code = (unsigned char)ft_atoi(args[1]);
 	return (sh->exit_code);
 }
-

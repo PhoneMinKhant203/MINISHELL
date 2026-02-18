@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:06:31 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/17 14:16:22 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 16:20:15 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ int	is_builtin(char **args)
 	return (0);
 }
 
-//changed arg from t_env **env_copy to t_shell *sh
 int	exe_builtin(char **args, t_shell *sh)
 {
 	if (!args || !args[0])

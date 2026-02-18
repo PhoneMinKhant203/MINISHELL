@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/18 14:26:54 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:33:26 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,12 @@ typedef struct s_node
 
 extern volatile sig_atomic_t	g_signal;
 
+//main
 void	process_input(char *line, t_shell *sh);
+void	handle_input(char *input, t_shell *sh);
+
+//env
+int		env_size(t_env *env);
 
 //Lexer
 char	*check_quotes(char *line, t_shell *sh);
@@ -196,6 +201,7 @@ void	unmask_wildcards(char *s);
 char	mask_wildcard_char(char c);
 char	**list_matches(const char *pattern, int *count);
 int		push_str(char ***arr, int *len, char *s);
+void	apply_wildcards(t_cmd *cmd);
 
 int		validate_syntax(t_token *tk, t_shell *sh);
 /* Parser (bonus && ||) */

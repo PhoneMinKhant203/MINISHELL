@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 20:07:36 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/18 12:18:44 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:34:41 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,94 +34,79 @@ char	*expand_str(char *s, t_shell *sh)
 	return (res);
 }
 
+static int	split_expand_wd(char *str, char ***out, int *len)
+{
+	int		j;
+	int		start;
+	char	*part;
+
+	j = 0;
+	while (str[j])
+	{
+		while (str[j] && ft_isspace(str[j]))
+			j++;
+		if (!str[j])
+			break ;
+		start = j;
+		while (str[j] && !ft_isspace(str[j]))
+			j++;
+		part = ft_substr(str, start, j - start);
+		if (!part || !push_str(out, len, part))
+		{
+			if (part)
+				free1p(&part);
+			return (0);
+		}
+	}
+	free1p(&str);
+	return (1);
+}
+
+static int	arg_expansion(char *arg, t_shell *sh, char ***out, int *len)
+{
+	char	*expanded;
+	int		had_quotes;
+
+	had_quotes = has_quotes(arg);
+	expanded = expand_str(ft_strdup(arg), sh);
+	if (!expanded)
+		return (0);
+	if (had_quotes)
+	{
+		if (!push_str(out, len, expanded))
+		{
+			free1p(&expanded);
+			return (0);
+		}
+		return (1);
+	}
+	return (split_expand_wd(expanded, out, len));
+}
+
 static void	process_cmd_argv(t_cmd *cmd, t_shell *sh)
 {
-	int		i;
-	int		changed;
-	int		had_quotes;
-	char	*expanded;
 	char	**out;
-	int		out_len;
-	int		start;
-	int		j;
-	char	*part;
-	char	**new_argv;
+	int		i;
+	int		len;
 
 	out = NULL;
-	out_len = 0;
+	len = 0;
 	i = 0;
 	while (cmd->args && cmd->args[i])
 	{
-		had_quotes = has_quotes(cmd->args[i]);
-		expanded = expand_str(ft_strdup(cmd->args[i]), sh);
-		if (!expanded)
+		if (!arg_expansion(cmd->args[i], sh, &out, &len))
 		{
 			free2p(out);
 			free2p(cmd->args);
 			cmd->args = NULL;
 			return ;
 		}
-		if (had_quotes)
-		{
-			if (!push_str(&out, &out_len, expanded))
-			{
-				free1p(&expanded);
-				free2p(out);
-				free2p(cmd->args);
-				cmd->args = NULL;
-				return ;
-			}
-		}
-		else
-		{
-			j = 0;
-			while (expanded[j])
-			{
-				while (expanded[j] && ft_isspace(expanded[j]))
-					j++;
-				if (!expanded[j])
-					break ;
-				start = j;
-				while (expanded[j] && !ft_isspace(expanded[j]))
-					j++;
-				part = ft_substr(expanded, start, j - start);
-				if (!part)
-				{
-					free1p(&expanded);
-					free2p(out);
-					free2p(cmd->args);
-					cmd->args = NULL;
-					return ;
-				}
-				if (!push_str(&out, &out_len, part))
-				{
-					free1p(&expanded);
-					free1p(&part);
-					free2p(out);
-					free2p(cmd->args);
-					cmd->args = NULL;
-					return ;
-				}
-			}
-			free1p(&expanded);
-		}
 		i++;
 	}
 	free2p(cmd->args);
 	cmd->args = out;
 	if (cmd->args)
-	{
-		changed = 0;
-		new_argv = expand_wildcards_argv(cmd->args, &changed);
-		if (new_argv)
-		{
-			free2p(cmd->args);
-			cmd->args = new_argv;
-		}
-		i = 0;
-		while (cmd->args && cmd->args[i])
-			unmask_wildcards(cmd->args[i++]);
-	}
+		apply_wildcards(cmd);
 }
 
 void	expand_cmds(t_cmd *cmds, t_shell *sh)

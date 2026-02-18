@@ -6,17 +6,31 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/18 14:37:07 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 16:45:11 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+static void	handle_error(char *path, char **args, char **env_arr)
+{
+	int	err;
+
+	err = errno;
+	print_err(args[0], NULL, strerror(err));
+	if (path)
+		free(path);
+	if (env_arr)
+		free2p(env_arr);
+	if (err == EACCES || err == EISDIR)
+		exit(126);
+	exit(127);
+}
+
 static void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 {
 	char	*path;
 	char	**env_arr;
-	int		err;
 
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
@@ -25,9 +39,7 @@ static void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 	path = resolve_path(cmd, sh, i);
 	if (is_directory(path))
 	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(cmd->args[i], 2);
-		ft_putendl_fd(": Is a directory", 2);
+		print_err(cmd->args[i], NULL, "Is a directory");
 		free(path);
 		exit(126);
 	}
@@ -39,22 +51,11 @@ static void	child_exec_binary(t_cmd *cmd, t_shell *sh, int i)
 		exit(1);
 	}
 	execve(path, &cmd->args[i], env_arr);
-	err = errno;
-	ft_putstr_fd("minishell: ", 2);
-	ft_putstr_fd(cmd->args[i], 2);
-	ft_putstr_fd(": ", 2);
-	ft_putendl_fd(strerror(err), 2);
-	free(path);
-	free2p(env_arr);
-	if (err == EACCES || err == EISDIR)
-		exit(126);
-	exit(127);
+	handle_error(path, &cmd->args[i], env_arr);
 }
 
 static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 {
-	int	i;
-
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
 	if (fdin != STDIN_FILENO)
@@ -74,10 +75,32 @@ static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 		exit(execute_ast(cmd->subshell, sh));
 	if (!cmd->args || !cmd->args[0])
 		exit(0);
-	i = 0;
-	if (cmd->args && is_builtin(&cmd->args[i]))
-		exit(exe_builtin(&cmd->args[i], sh));
-	child_exec_binary(cmd, sh, i);
+	if (cmd->args && is_builtin(cmd->args))
+		exit(exe_builtin(cmd->args, sh));
+	child_exec_binary(cmd, sh, 0);
+}
+
+static int	handle_fork(t_cmd *cmd, t_shell *sh, int *fdin, int fd_p[2])
+{
+	pid_t	pid;
+
+	pid = fork();
+	if (pid == -1)
+	{
+		if (cmd->next)
+		{
+			close(fd_p[0]);
+			close(fd_p[1]);
+		}
+		if (*fdin != STDIN_FILENO)
+			close(*fdin);
+		perror("minishell: fork");
+		return (-1);
+	}
+	if (pid == 0)
+		child_process(cmd, sh, *fdin, fd_p);
+	update_parent_fds(fdin, fd_p, cmd->next);
+	return (pid);
 }
 
 void	start_executor(t_cmd *cmds, t_shell *sh)
@@ -96,23 +119,12 @@ void	start_executor(t_cmd *cmds, t_shell *sh)
 		{
 			if (fd_in != STDIN_FILENO)
 				close(fd_in);
-			return (perror("minishell: pipe"), setup_signals());
+			perror("minishell: pipe");
+			break ;
 		}
-		last_pid = fork();
+		last_pid = handle_fork(cmds, sh, &fd_in, fd_pipe);
 		if (last_pid == -1)
-		{
-			if (cmds->next)
-			{
-				close(fd_pipe[0]);
-				close(fd_pipe[1]);
-			}
-			if (fd_in != STDIN_FILENO)
-				close(fd_in);
-			return (perror("minishell: fork"), setup_signals());
-		}
-		if (last_pid == 0)
-			child_process(cmds, sh, fd_in, fd_pipe);
-		update_parent_fds(&fd_in, fd_pipe, cmds->next);
+			break ;
 		cmds = cmds->next;
 	}
 	wait_all_children(sh, last_pid);

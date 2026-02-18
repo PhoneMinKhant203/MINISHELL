@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/18 12:19:56 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/18 12:21:26 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:46:18 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,22 @@ void	print_sig_msg(int status)
 	}
 }
 
+static void	child_subshell(t_cmd *cmd, t_shell *sh)
+{
+	int	st;
+
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	if (setup_redirection(cmd, sh) == -1)
+		exit(1);
+	st = execute_ast(cmd->subshell, sh);
+	exit(st);
+}
+
 int	handle_subshell(t_cmd *cmd, t_shell *sh)
 {
 	pid_t	pid;
 	int		status;
-	int		st;
 
 	signal(SIGINT, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
@@ -35,14 +46,7 @@ int	handle_subshell(t_cmd *cmd, t_shell *sh)
 	if (pid == -1)
 		return (perror("minishell: fork"), setup_signals(), 1);
 	if (pid == 0)
-	{
-		signal(SIGINT, SIG_DFL);
-		signal(SIGQUIT, SIG_DFL);
-		if (setup_redirection(cmd, sh) == -1)
-			exit(1);
-		st = execute_ast(cmd->subshell, sh);
-		exit(st);
-	}
+		child_subshell(cmd, sh);
 	status = 0;
 	while (waitpid(pid, &status, 0) < 0 && errno == EINTR)
 		;

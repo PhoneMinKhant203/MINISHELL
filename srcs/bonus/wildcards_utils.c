@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   wildcards_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 13:56:07 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/15 00:05:20 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/18 17:33:15 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,4 +56,22 @@ int	contains_wildcard(const char *s)
 		i++;
 	}
 	return (0);
+}
+
+void	apply_wildcards(t_cmd *cmd)
+{
+	char	**new_argv;
+	int		changed;
+	int		i;
+
+	changed = 0;
+	new_argv = expand_wildcards_argv(cmd->args, &changed);
+	if (new_argv)
+	{
+		free2p(cmd->args);
+		cmd->args = new_argv;
+	}
+	i = 0;
+	while (cmd->args && cmd->args[i])
+		unmask_wildcards(cmd->args[i++]);
 }

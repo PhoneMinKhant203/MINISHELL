@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:56:25 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/18 12:14:34 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 15:52:28 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static void	shell_loop(t_shell *sh)
 {
 	char	*input;
 
-	while (1)
+	while (!sh->should_exit)
 	{
 		input = readline("minishell$ ");
 		if (!input)
@@ -28,23 +28,19 @@ static void	shell_loop(t_shell *sh)
 			break ;
 		}
 		sh->line_no++;
-		if (g_signal == SIGINT)
-		{
-			sh->last_status = 130;
-			g_signal = 0;
-		}
-		if (*input)
-		{
-			add_history(input);
-			input = check_quotes(input, sh);
-			if (input)
-				process_input(input, sh);
-		}
-		if (input)
-			free(input);
-		if (sh->should_exit)
-			break ;
+		handle_input(input, sh);
 	}
+}
+
+static void	init_shell(t_shell *sh, char **envp)
+{
+	sh->env = init_env(envp);
+	sh->last_status = 0;
+	sh->should_exit = 0;
+	sh->exit_code = 0;
+	sh->line_no = 0;
+	update_shlvl(sh);
+	setup_signals();
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -54,13 +50,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argv;
 	if (argc != 1)
 		return (1);
-	sh.env = init_env(envp);
-	sh.last_status = 0;
-	sh.should_exit = 0;
-	sh.exit_code = 0;
-	sh.line_no = 0;
-	update_shlvl(&sh);
-	setup_signals();
+	init_shell(&sh, envp);
 	shell_loop(&sh);
 	if (!sh.env)
 		printf("exit\n");

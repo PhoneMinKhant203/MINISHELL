@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   quote_checker.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/14 14:08:11 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/15 14:01:46 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/18 17:38:28 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static int	has_unclosed_quotes(const char *s)
 
 static char	*handle_unexpected_eof(char *line, t_shell *sh)
 {
-	ft_putendl_fd("minishell: unexpected EOF while looking for matching quote", 2);
+	print_err(NULL, NULL, "unexpected EOF while looking for matching quote");
 	ft_putendl_fd("minishell: syntax error: unexpected end of file", 2);
 	sh->last_status = 130;
 	free(line);

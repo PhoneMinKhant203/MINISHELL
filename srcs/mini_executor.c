@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 17:07:58 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/18 14:21:47 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 15:08:58 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,25 +70,6 @@ static int	execute_cmds(t_cmd *cmds, t_shell *sh)
 	start_executor(cmds, sh);
 	return (sh->last_status);
 }
-
-// static int	execute_cmds(t_cmd *cmds, t_shell *sh)
-// {
-// 	if (!cmds)
-// 		return (0);
-// 	if (!cmds->args || !cmds->args[0])
-// 	{
-// 		if (setup_redirection(cmds, sh) == -1)
-// 			return (sh->last_status = 1);
-// 		return (sh->last_status = 0);
-// 	}
-// 	if (!cmds->next && is_builtin(cmds->args))
-// 	{
-// 		sh->last_status = handle_builtin(cmds, sh, 0);
-// 		return (sh->last_status);
-// 	}
-// 	start_executor(cmds, sh);
-// 	return (sh->last_status);
-// }
 
 void	expand_ast(t_node *node, t_shell *sh)
 {
