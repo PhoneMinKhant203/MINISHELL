@@ -6,11 +6,21 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 18:17:36 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/16 18:39:56 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 17:58:18 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+static void	heredoc_warn(const char *delimiter, int line_num)
+{
+	ft_putstr_fd("minishell: warning: here-document at line ", 2);
+	ft_putnbr_fd(line_num, 2);
+	ft_putstr_fd(" delimited by end-of-file (wanted `", 2);
+	if (delimiter)
+		ft_putstr_fd((char *)delimiter, 2);
+	ft_putendl_fd("')", 2);
+}
 
 static char	*strip_delim_quotes(const char *raw, int *do_expand)
 {
@@ -125,12 +135,11 @@ void	handle_heredoc(const char *delimiter_raw, t_shell *sh)
 	char	*line;
 	char	*delimiter;
 	int		do_expand;
+	int		eof;
+	int		line_len;
 
 	if (pipe(fd) == -1)
-	{
-		perror("minishell: pipe");
-		return ;
-	}
+		return (perror("minishell: pipe"));
 	delimiter = strip_delim_quotes(delimiter_raw, &do_expand);
 	if (!delimiter)
 	{
@@ -138,11 +147,16 @@ void	handle_heredoc(const char *delimiter_raw, t_shell *sh)
 		close(fd[1]);
 		return ;
 	}
+	eof = 0;
+	line_len = sh->line_no;
 	while (1)
 	{
 		line = readline("> ");
-		if (!line || ft_strncmp(line, delimiter, ft_strlen(delimiter) + 1) == 0)
+		sh->line_no++;
+		if (!line || !ft_strncmp(line, delimiter, ft_strlen(delimiter) + 1))
 		{
+			if (!line)
+				eof = 1;
 			free(line);
 			break ;
 		}
@@ -154,8 +168,51 @@ void	handle_heredoc(const char *delimiter_raw, t_shell *sh)
 		write(fd[1], "\n", 1);
 		free(line);
 	}
+	if (eof)
+		heredoc_warn(delimiter, line_len);
 	free(delimiter);
 	close(fd[1]);
 	dup2(fd[0], STDIN_FILENO);
 	close(fd[0]);
 }
+
+// void	handle_heredoc(const char *delimiter_raw, t_shell *sh)
+// {
+// 	int		fd[2];
+// 	char	*line;
+// 	char	*delimiter;
+// 	int		do_expand;
+
+// 	if (pipe(fd) == -1)
+// 	{
+// 		perror("minishell: pipe");
+// 		return ;
+// 	}
+// 	delimiter = strip_delim_quotes(delimiter_raw, &do_expand);
+// 	if (!delimiter)
+// 	{
+// 		close(fd[0]);
+// 		close(fd[1]);
+// 		return ;
+// 	}
+// 	while (1)
+// 	{
+// 		line = readline("> ");
+// 		if (!line || ft_strncmp(line, delimiter, ft_strlen(delimiter) + 1) == 0)
+// 		{
+// 			free(line);
+// 			break ;
+// 		}
+// 		if (do_expand)
+// 			line = expand_heredoc_line(line, sh);
+// 		if (!line)
+// 			break ;
+// 		write(fd[1], line, ft_strlen(line));
+// 		write(fd[1], "\n", 1);
+// 		free(line);
+// 	}
+// 	free(delimiter);
+// 	close(fd[1]);
+// 	dup2(fd[0], STDIN_FILENO);
+// 	close(fd[0]);
+// }

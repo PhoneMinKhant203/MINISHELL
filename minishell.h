@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:57:01 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/17 14:18:02 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 14:26:54 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@
 # include <readline/history.h>
 # include <fcntl.h>
 
+struct	s_node;
+
 typedef enum e_tktype
 {
 	T_WORD,
@@ -36,6 +38,8 @@ typedef enum e_tktype
 	T_OUT,
 	T_APPEND,
 	T_HEREDOC,
+	T_LPAREN,
+	T_RPAREN,
 	T_BAD
 }	t_tktype;
 
@@ -46,9 +50,17 @@ typedef struct s_redir
 	struct s_redir		*next;
 }	t_redir;
 
+typedef enum e_cmdtype
+{
+	CMD_SIMPLE,
+	CMD_SUBSHELL
+}	t_cmdtype;
+
 typedef struct s_cmd
 {
+	t_cmdtype		type;
 	char			**args;
+	struct s_node	*subshell;
 	t_redir			*redirs;
 	struct s_cmd	*next;
 }	t_cmd;
@@ -73,6 +85,7 @@ typedef struct s_shell
 	int		last_status;
 	int		should_exit;
 	int		exit_code;
+	int		line_no;
 }	t_shell;
 
 typedef enum e_ntype
@@ -92,6 +105,8 @@ typedef struct s_node
 
 extern volatile sig_atomic_t	g_signal;
 
+void	process_input(char *line, t_shell *sh);
+
 //Lexer
 char	*check_quotes(char *line, t_shell *sh);
 int		skip_spaces(char *s, int *i);
@@ -104,7 +119,7 @@ t_cmd	*new_cmd(void);
 int		count_args(t_token *tok);
 int		fill_args(t_cmd *cmd, t_token *tok);
 int		handle_redir(t_cmd *cmd, t_token *tok);
-t_cmd	*parse_one_cmd(t_token *tok);
+t_cmd	*parse_one_cmd(t_token **tk);
 int		is_stop(t_tktype t);
 
 //Redirection
@@ -123,6 +138,10 @@ void	free_env(t_env *env);
 void	print_err(char *arg, char *cmd, char *msg);
 void	exe_error(char *arg);
 void	free_env_node(t_env *node);
+
+//Subshell
+int		handle_subshell(t_cmd *cmd, t_shell *sh);
+void	print_sig_msg(int status);
 
 //Expand
 t_env	*new_env_node(char *key, char *value);
@@ -180,14 +199,11 @@ int		push_str(char ***arr, int *len, char *s);
 
 int		validate_syntax(t_token *tk, t_shell *sh);
 /* Parser (bonus && ||) */
-t_node	*parse_ast(t_token *tok);
+t_node	*parse_ast(t_token **tok);
 void	free_ast(t_node *node);
 
 /* Executor (bonus && ||) */
 int		execute_ast(t_node *node, t_shell *sh);
 void	expand_ast(t_node *node, t_shell *sh);
-
-// Input Handler 
-void	process_an_input(char *line, t_shell *sh);
 
 #endif

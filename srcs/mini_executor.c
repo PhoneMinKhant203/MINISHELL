@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 17:07:58 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/16 19:59:26 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 14:21:47 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,24 +30,65 @@ static int	handle_builtin(t_cmd *cmd, t_shell *sh, int i)
 	return (sh->last_status);
 }
 
+static int	handle_null_cmd(t_cmd *cmd, t_shell *sh)
+{
+	int	tmp_in;
+	int	tmp_out;
+	int	st;
+
+	tmp_in = dup(STDIN_FILENO);
+	tmp_out = dup(STDOUT_FILENO);
+	st = 0;
+	if (tmp_in < 0 || tmp_out < 0)
+		st = 1;
+	else if (setup_redirection(cmd, sh) == -1)
+		st = 1;
+	if (tmp_in >= 0)
+	{
+		dup2(tmp_in, STDIN_FILENO);
+		close(tmp_in);
+	}
+	if (tmp_out >= 0)
+	{
+		dup2(tmp_out, STDOUT_FILENO);
+		close(tmp_out);
+	}
+	sh->last_status = st;
+	return (st);
+}
+
 static int	execute_cmds(t_cmd *cmds, t_shell *sh)
 {
 	if (!cmds)
 		return (0);
+	if (cmds->subshell && !cmds->next)
+		return (handle_subshell(cmds, sh));
 	if (!cmds->args || !cmds->args[0])
-	{
-		if (setup_redirection(cmds, sh) == -1)
-			return (sh->last_status = 1);
-		return (sh->last_status = 0);
-	}
+		return (handle_null_cmd(cmds, sh));
 	if (!cmds->next && is_builtin(cmds->args))
-	{
-		sh->last_status = handle_builtin(cmds, sh, 0);
-		return (sh->last_status);
-	}
+		return (handle_builtin(cmds, sh, 0));
 	start_executor(cmds, sh);
 	return (sh->last_status);
 }
+
+// static int	execute_cmds(t_cmd *cmds, t_shell *sh)
+// {
+// 	if (!cmds)
+// 		return (0);
+// 	if (!cmds->args || !cmds->args[0])
+// 	{
+// 		if (setup_redirection(cmds, sh) == -1)
+// 			return (sh->last_status = 1);
+// 		return (sh->last_status = 0);
+// 	}
+// 	if (!cmds->next && is_builtin(cmds->args))
+// 	{
+// 		sh->last_status = handle_builtin(cmds, sh, 0);
+// 		return (sh->last_status);
+// 	}
+// 	start_executor(cmds, sh);
+// 	return (sh->last_status);
+// }
 
 void	expand_ast(t_node *node, t_shell *sh)
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   syntax.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 16:57:45 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/14 23:57:56 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/17 18:53:33 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,8 @@ static int	check_token(t_token *tk, t_shell *sh)
 	{
 		if (!tk->next)
 			return (syntax_error(NULL, sh), 0);
-		if (tk->next->type == T_PIPE || is_logic(tk->next->type))
+		if (tk->next->type == T_PIPE || is_logic(tk->next->type)
+			|| tk->next->type == T_RPAREN)
 			return (syntax_error(tk->next->value, sh), 0);
 	}
 	if (is_redir(tk->type))
@@ -56,9 +57,13 @@ static int	check_token(t_token *tk, t_shell *sh)
 
 int	validate_syntax(t_token *tk, t_shell *sh)
 {
+	int		depth;
+	t_token	*prev;
+
 	if (!tk)
 		return (1);
-	if (tk->type == T_BAD)
+	if (tk->type == T_BAD || tk->type == T_PIPE || is_logic(tk->type)
+		|| tk->type == T_RPAREN)
 	{
 		syntax_error(tk->value, sh);
 		return (0);
@@ -68,11 +73,40 @@ int	validate_syntax(t_token *tk, t_shell *sh)
 		syntax_error(tk->value, sh);
 		return (0);
 	}
+	depth = 0;
+	prev = NULL;
 	while (tk)
 	{
+		if (tk->type == T_LPAREN)
+		{
+			if (prev && (prev->type == T_WORD || prev->type == T_RPAREN))
+				return (syntax_error(tk->value, sh), 0);
+			if (!tk->next)
+				return (syntax_error(NULL, sh), 0);
+			if (tk->next->type == T_RPAREN)
+				return (syntax_error(tk->next->value, sh), 0);
+			if (tk->next->type == T_PIPE || is_logic(tk->next->type))
+				return (syntax_error(tk->next->value, sh), 0);
+			depth++;
+		}
+		else if (tk->type == T_RPAREN)
+		{
+			if (depth <= 0)
+				return (syntax_error(tk->value, sh), 0);
+			if (!prev || prev->type == T_LPAREN || prev->type == T_PIPE
+				|| is_logic(prev->type))
+				return (syntax_error(tk->value, sh), 0);
+			depth--;
+			if (tk->next && (tk->next->type == T_WORD
+					|| tk->next->type == T_LPAREN))
+				return (syntax_error(tk->next->value, sh), 0);
+		}
 		if (!check_token(tk, sh))
 			return (0);
+		prev = tk;
 		tk = tk->next;
 	}
+	if (depth != 0)
+		return (syntax_error(NULL, sh), 0);
 	return (1);
 }

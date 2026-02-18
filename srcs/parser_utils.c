@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:21:40 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/17 13:48:07 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 18:53:52 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	is_stop(t_tktype t)
 {
-	return (t == T_PIPE || t == T_AND || t == T_OR);
+	return (t == T_PIPE || t == T_AND || t == T_OR || t == T_RPAREN);
 }
 
 int	count_args(t_token *tk)

@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 21:08:30 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/17 13:31:55 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 14:37:07 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,12 @@ static void	child_process(t_cmd *cmd, t_shell *sh, int fdin, int p_fd[2])
 	}
 	if (setup_redirection(cmd, sh) == -1)
 		exit(1);
+	if (cmd->subshell)
+		exit(execute_ast(cmd->subshell, sh));
+	if (!cmd->args || !cmd->args[0])
+		exit(0);
 	i = 0;
-	if (is_builtin(&cmd->args[i]))
+	if (cmd->args && is_builtin(&cmd->args[i]))
 		exit(exe_builtin(&cmd->args[i], sh));
 	child_exec_binary(cmd, sh, i);
 }

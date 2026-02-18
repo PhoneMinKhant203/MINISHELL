@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:48:11 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/17 13:17:44 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/17 18:49:12 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,12 +63,10 @@ static t_token	*handle_op_extra(char *s, int *i)
 			return (*i += 2, new_token(ft_strdup(">>"), T_APPEND));
 		return ((*i)++, new_token(ft_strdup(">"), T_OUT));
 	}
-	if (s[*i] == '(' || s[*i] == ')')
-	{
-		if (s[*i] == '(')
-			return ((*i)++, new_token(ft_strdup("("), T_BAD));
-		return ((*i)++, new_token(ft_strdup(")"), T_BAD));
-	}
+	if (s[*i] == '(')
+		return ((*i)++, new_token(ft_strdup("("), T_LPAREN));
+	if (s[*i] == ')')
+		return ((*i)++, new_token(ft_strdup(")"), T_RPAREN));
 	return (NULL);
 }
 

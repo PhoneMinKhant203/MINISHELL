@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 20:07:36 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/16 18:35:11 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 12:18:44 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,6 +130,8 @@ void	expand_cmds(t_cmd *cmds, t_shell *sh)
 
 	while (cmds)
 	{
+		if (cmds->subshell)
+			expand_ast(cmds->subshell, sh);
 		process_cmd_argv(cmds, sh);
 		r = cmds->redirs;
 		while (r)

@@ -6,7 +6,7 @@
 #    By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/09/17 12:54:11 by wintoo            #+#    #+#              #
-#    Updated: 2026/02/16 16:07:34 by wintoo           ###   ########.fr        #
+#    Updated: 2026/02/18 12:22:20 by wintoo           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ SRCS	= srcs/main.c srcs/signals.c srcs/lexer.c srcs/free.c srcs/error.c  srcs/qu
 		srcs/expand.c srcs/expand_utils.c srcs/env_utils.c srcs/heredoc.c srcs/cmd_execution.c \
 		srcs/bonus/wildcards_utils.c srcs/bonus/wildcards.c srcs/syntax.c srcs/input_handler.c \
 		srcs/parser_utils_2.c srcs/cmd_execution_utils.c srcs/expand_redir.c srcs/shell_lv.c\
-		srcs/bonus/wildcards_math.c srcs/bonus/wildcards_dir.c
+		srcs/bonus/wildcards_math.c srcs/bonus/wildcards_dir.c srcs/subshell_utils.c
 
 OBJS	= $(SRCS:.c=.o)
 

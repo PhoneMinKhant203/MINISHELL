@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 15:05:50 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/17 12:57:32 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 12:18:07 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,8 @@ void	free_cmds(t_cmd *cmd)
 		tmp = cmd->next;
 		if (cmd->args)
 			free2p(cmd->args);
+		if (cmd->subshell)
+			free_ast(cmd->subshell);
 		free_redirs(cmd->redirs);
 		cmd->redirs = NULL;
 		free(cmd);

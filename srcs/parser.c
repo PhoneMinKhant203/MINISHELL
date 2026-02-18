@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 14:19:45 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/17 13:54:23 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 14:36:36 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,12 @@ static t_node	*new_node(t_ntype type, t_node *l, t_node *r, t_cmd *p)
 	return (n);
 }
 
+static int	is_ast_stop(t_token *tk)
+{
+	return (!tk || tk->type == T_AND
+		|| tk->type == T_OR || tk->type == T_RPAREN);
+}
+
 static t_cmd	*parse_pipeline(t_token **tk)
 {
 	t_cmd	*head;
@@ -34,9 +40,9 @@ static t_cmd	*parse_pipeline(t_token **tk)
 
 	head = NULL;
 	tail = NULL;
-	while (*tk && (*tk)->type != T_AND && (*tk)->type != T_OR)
+	while (*tk && !is_ast_stop(*tk))
 	{
-		new = parse_one_cmd(*tk);
+		new = parse_one_cmd(tk);
 		if (!new)
 			return (free_cmds(head), NULL);
 		if (!head)
@@ -44,11 +50,10 @@ static t_cmd	*parse_pipeline(t_token **tk)
 		else
 			tail->next = new;
 		tail = new;
-		while (*tk && (*tk)->type != T_PIPE
-			&& (*tk)->type != T_AND && (*tk)->type != T_OR)
-			*tk = (*tk)->next;
 		if (*tk && (*tk)->type == T_PIPE)
 			*tk = (*tk)->next;
+		else
+			break ;
 	}
 	return (head);
 }
@@ -77,12 +82,14 @@ static t_node	*link_node(t_node *left, t_token **tok)
 	return (parent);
 }
 
-t_node	*parse_ast(t_token *tok)
+t_node	*parse_ast(t_token **tok)
 {
 	t_node	*left;
 	t_cmd	*p;
 
-	p = parse_pipeline(&tok);
+	if (!tok || !*tok)
+		return (NULL);
+	p = parse_pipeline(tok);
 	if (!p)
 		return (NULL);
 	left = new_node(N_PIPELINE, NULL, NULL, p);
@@ -91,9 +98,9 @@ t_node	*parse_ast(t_token *tok)
 		free_cmds(p);
 		return (NULL);
 	}
-	while (tok && (tok->type == T_AND || tok->type == T_OR))
+	while (*tok && ((*tok)->type == T_AND || (*tok)->type == T_OR))
 	{
-		left = link_node(left, &tok);
+		left = link_node(left, tok);
 		if (!left)
 			return (NULL);
 	}
