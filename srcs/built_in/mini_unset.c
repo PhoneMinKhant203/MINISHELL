@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mini_unset.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:44:02 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/03 16:47:50 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/16 17:43:46 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ int	mini_unset(char **args, t_env **env)
 	t_env	*prev;
 	int		i;
 
-	i = 1;
-	while (args[i])
+	i = 0;
+	while (args[++i])
 	{
 		curr = *env;
 		prev = NULL;
@@ -31,16 +31,12 @@ int	mini_unset(char **args, t_env **env)
 					prev->next = curr->next;
 				else
 					*env = curr->next;
-				free(curr->key);
-				free(curr->value);
-				free(curr);
+				free_env_node(curr);
 				break ;
 			}
 			prev = curr;
 			curr = curr->next;
 		}
-		i++;
 	}
 	return (0);
 }
-

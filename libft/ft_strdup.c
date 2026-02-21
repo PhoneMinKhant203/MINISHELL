@@ -3,42 +3,39 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strdup.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/27 13:20:25 by wintoo            #+#    #+#             */
-/*   Updated: 2025/09/01 12:01:36 by wintoo           ###   ########.fr       */
+/*   Created: 2025/08/28 12:53:39 by phonekha          #+#    #+#             */
+/*   Updated: 2025/08/28 17:11:31 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_strdup(const char *str)
+char	*ft_strdup(const char *src)
 {
-	char	*dup;
-	int		len;
-	int		index;
+	char	*dest;
+	size_t	i;
 
-	len = ft_strlen(str);
-	dup = malloc(len + 1);
-	if (!dup)
+	if (!src)
 		return (NULL);
-	index = 0;
-	while (str[index])
+	dest = (char *)malloc(sizeof(*src) * (ft_strlen(src) + 1));
+	if (!dest)
+		return (NULL);
+	i = 0;
+	while (src[i])
 	{
-		dup[index] = str[index];
-		index++;
+		dest[i] = src[i];
+		i++;
 	}
-	dup[index] = '\0';
-	return (dup);
+	dest[i] = '\0';
+	return (dest);
 }
 
-// #include <string.h>
-// #include <stdio.h>
-
-// int	main(void)
+// int main(void)
 // {
-// 	char	str[] = "I am lazy. I am sleepy. I hate working but want $";
-
-// 	printf("%s\n", ft_strdup(str));
-// 	printf("%s\n", strdup(str));
+//     char source[] = "Hello World, I am Phone Min Khant";
+//     char* target = ft_strdup(source); 
+//     printf("%s", target);
+//     return 0;
 // }

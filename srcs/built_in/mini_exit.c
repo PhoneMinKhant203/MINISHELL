@@ -3,52 +3,67 @@
 /*                                                        :::      ::::::::   */
 /*   mini_exit.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 21:40:24 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/03 23:21:24 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/18 18:16:49 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
+#include <limits.h>
 
-static int is_all_digits(char *str)
+static int	is_all_digits(char *str)
 {
-    int i;
+	unsigned long long	res;
+	int					i;
+	int					sign;
 
-    i = 0;
-    if (!str)
-        return (0);
-    if (str[i] == '-' || str[i] == '+')
-        i++;
-    if (!str[i])
-        return (0);
-    while (str[i])
-    {
-        if (!ft_isdigit(str[i]))
-            return (0);
-        i++;
-    }
-    return (1);
+	i = 0;
+	res = 0;
+	sign = 1;
+	if (str[i] == '-' || str[i] == '+')
+		if (str[i++] == '-')
+			sign = -1;
+	if (!str[i])
+		return (0);
+	while (str[i])
+	{
+		if (!ft_isdigit(str[i]))
+			return (0);
+		res = res * 10 + (str[i++] - '0');
+		if ((sign == 1 && res > (unsigned long long)LLONG_MAX)
+			|| (sign == -1 && res > (unsigned long long)LLONG_MAX + 1))
+			return (0);
+	}
+	return (1);
 }
 
-void mini_exit(char **args)
+int	mini_exit(char **args, t_shell *sh)
 {
-    printf("exit\n");
-    if (!args[1])
-        exit(0); // You might want to pass g_status here later
+	int	code;
 
-    if (!is_all_digits(args[1]))
-    {
-        fprintf(stderr, "minishell: exit: %s: numeric argument required\n", args[1]);
-        exit(255);
-    }
-
-    if (args[2])
-    {
-        fprintf(stderr, "minishell: exit: too many arguments\n");
-        return ;
-    }
-    exit(ft_atoi(args[1]));
+	if (isatty(STDIN_FILENO))
+		ft_putendl_fd("exit", 1);
+	code = sh->last_status;
+	if (!args[1])
+	{
+		sh->should_exit = 1;
+		sh->exit_code = (unsigned char)code;
+		return (sh->exit_code);
+	}
+	if (!is_all_digits(args[1]))
+	{
+		sh->should_exit = 1;
+		sh->exit_code = 2;
+		return (print_err(args[1], "exit: ", "numeric argument required"), 2);
+	}
+	if (args[2])
+	{
+		sh->last_status = 1;
+		return (print_err(NULL, "exit: ", "too many arguments"), 1);
+	}
+	sh->should_exit = 1;
+	sh->exit_code = (unsigned char)ft_atoi(args[1]);
+	return (sh->exit_code);
 }
-

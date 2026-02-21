@@ -3,78 +3,64 @@
 /*                                                        :::      ::::::::   */
 /*   mini_env.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
+/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:22:34 by phonekha          #+#    #+#             */
-/*   Updated: 2026/02/04 11:49:34 by phonekha         ###   ########.fr       */
+/*   Updated: 2026/02/16 19:58:42 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../minishell.h"
 
-int		mini_env(t_env *env)
+int	mini_env(t_env *env)
 {
-    while (env)
-    {
-        if (env->value)
-            printf("%s=%s\n", env->key, env->value);
-        env = env->next;
-    }
-    return (0);
+	while (env)
+	{
+		if (env->value)
+			printf("%s=%s\n", env->key, env->value);
+		env = env->next;
+	}
+	return (0);
 }
 
-t_env	*copy_env_list(t_env *env)
+static t_env	*copy_env_list(t_env *env)
 {
 	t_env	*new_list;
-	t_env	*new_node;
+	t_env	*curr;
+	t_env	*new;
 
 	new_list = NULL;
 	while (env)
 	{
-		new_node = malloc(sizeof(t_env));
-		if (!new_node)
-			return (NULL);
-		new_node->key = ft_strdup(env->key);
-		if (env->value)
-			new_node->value = ft_strdup(env->value);
-		else
-			new_node->value = NULL;
-		new_node->next = new_list;
-		new_list = new_node;
+		new = new_env_node(env->key, env->value);
+		if (new)
+		{
+			if (!new_list)
+				new_list = new;
+			else
+				curr->next = new;
+			curr = new;
+		}
 		env = env->next;
 	}
 	return (new_list);
 }
 
-void	free_env_list(t_env *env)
+void	print_sorted_env(t_env *env)
 {
+	t_env	*copy;
 	t_env	*tmp;
 
-	while (env)
+	copy = copy_env_list(env);
+	sort_env_list(copy);
+	tmp = copy;
+	while (tmp)
 	{
-		tmp = env->next;
-		free(env->key);
-		free(env->value);
-		free(env);
-		env = tmp;
+		printf("declare -x %s", tmp->key);
+		if (tmp->value)
+			printf("=\"%s\"", tmp->value);
+		printf("\n");
+		tmp = tmp->next;
 	}
-}
-
-void print_sorted_env(t_env *env)
-{
-    t_env *copy;
-    t_env *tmp;
-
-    copy = copy_env_list(env);
-    sort_env_list(copy);
-    tmp = copy;
-    while (tmp)
-    {
-        printf("declare -x %s", tmp->key);
-        if (tmp->value)
-            printf("=\"%s\"", tmp->value);
-        printf("\n");
-        tmp = tmp->next;
-    }
-    free_env_list(copy);
+	free_env(copy);
 }

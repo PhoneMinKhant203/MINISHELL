@@ -6,62 +6,101 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 17:07:58 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/03 14:46:50 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 15:08:58 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char	*find_path(char *cmd)
+static int	handle_builtin(t_cmd *cmd, t_shell *sh, int i)
 {
-	char	*path;
-	char	**dirs;
-	char	*full;
-	int		i;
+	int	tmp_in;
+	int	tmp_out;
 
-	path = getenv("PATH");
-	if (!path)
-		return (NULL);
-	dirs = ft_split(path, ':');
-	if (!dirs)
-		return (NULL);
-	i = 0;
-	while (dirs[i])
-	{
-		full = mod_strjoin(dirs[i++], cmd);
-		if (!full)
-			return (NULL);
-		if (access(full, F_OK | X_OK) == 0)
-			return (free2p(dirs), full);
-		free(full);
-	}
-	free2p(dirs);
-	return (NULL);
+	tmp_in = dup(STDIN_FILENO);
+	tmp_out = dup(STDOUT_FILENO);
+	if (setup_redirection(cmd, sh) == 0)
+		sh->last_status = exe_builtin(&cmd->args[i], sh);
+	else
+		sh->last_status = 1;
+	dup2(tmp_in, STDIN_FILENO);
+	dup2(tmp_out, STDOUT_FILENO);
+	close(tmp_in);
+	close(tmp_out);
+	return (sh->last_status);
 }
 
-int	exe_cmd(char **args, char **envp)
+static int	handle_null_cmd(t_cmd *cmd, t_shell *sh)
 {
-	pid_t	pid;
-	char	*path;
-	int		status;
+	int	tmp_in;
+	int	tmp_out;
+	int	st;
 
-	if (!args || !args[0])
-		return (0);
-	path = find_path(args[0]);
-	if (!path)
-		return (perror(args[0]), 127);
-	pid = fork();
-	if (pid == 0)
+	tmp_in = dup(STDIN_FILENO);
+	tmp_out = dup(STDOUT_FILENO);
+	st = 0;
+	if (tmp_in < 0 || tmp_out < 0)
+		st = 1;
+	else if (setup_redirection(cmd, sh) == -1)
+		st = 1;
+	if (tmp_in >= 0)
 	{
-		execve(path, args, envp);
-		perror(args[0]);
-		exit(1);
+		dup2(tmp_in, STDIN_FILENO);
+		close(tmp_in);
 	}
-	else if (pid < 0)
-		return (perror("fork"), 1);
-	waitpid(pid, &status, 0);
-	free(path);
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
-	return (1);
+	if (tmp_out >= 0)
+	{
+		dup2(tmp_out, STDOUT_FILENO);
+		close(tmp_out);
+	}
+	sh->last_status = st;
+	return (st);
+}
+
+static int	execute_cmds(t_cmd *cmds, t_shell *sh)
+{
+	if (!cmds)
+		return (0);
+	if (cmds->subshell && !cmds->next)
+		return (handle_subshell(cmds, sh));
+	if (!cmds->args || !cmds->args[0])
+		return (handle_null_cmd(cmds, sh));
+	if (!cmds->next && is_builtin(cmds->args))
+		return (handle_builtin(cmds, sh, 0));
+	start_executor(cmds, sh);
+	return (sh->last_status);
+}
+
+void	expand_ast(t_node *node, t_shell *sh)
+{
+	if (!node)
+		return ;
+	if (node->type == N_PIPELINE)
+	{
+		expand_cmds(node->pipeline, sh);
+		return ;
+	}
+	expand_ast(node->left, sh);
+	expand_ast(node->right, sh);
+}
+
+int	execute_ast(t_node *node, t_shell *sh)
+{
+	int	st;
+
+	if (!node)
+		return (0);
+	if (node->type == N_PIPELINE)
+		return (execute_cmds(node->pipeline, sh));
+	if (node->type == N_AND)
+	{
+		st = execute_ast(node->left, sh);
+		if (st == 0)
+			st = execute_ast(node->right, sh);
+		return (st);
+	}
+	st = execute_ast(node->left, sh);
+	if (st != 0)
+		st = execute_ast(node->right, sh);
+	return (st);
 }

@@ -3,41 +3,44 @@
 /*                                                        :::      ::::::::   */
 /*   ft_substr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
+/*   By: phonekha <phonekha@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/29 16:00:48 by wintoo            #+#    #+#             */
-/*   Updated: 2025/09/01 14:36:02 by wintoo           ###   ########.fr       */
+/*   Created: 2025/08/29 09:11:35 by phonekha          #+#    #+#             */
+/*   Updated: 2025/09/01 12:30:29 by phonekha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-char	*ft_substr(const char *s, unsigned int start, size_t len)
+char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
+	size_t	i;
+	size_t	s_len;
 	char	*res;
-	size_t	l;
-	size_t	index;
 
-	if (s == NULL)
+	if (!s)
 		return (NULL);
-	l = ft_strlen(s);
-	if (start > l)
+	s_len = ft_strlen(s);
+	if (start >= s_len)
 		return (ft_strdup(""));
-	if (len > l - start)
-		len = l - start;
-	res = malloc(len + 1);
+	if (len > s_len - start)
+		len = s_len - start;
+	res = (char *)malloc(sizeof(char) * (len + 1));
 	if (!res)
 		return (NULL);
-	index = 0;
-	while (s[start] && index < len)
-		res[index++] = s[start++];
-	res[index] = '\0';
+	i = 0;
+	while (i < len)
+	{
+		res[i] = s[start + i];
+		i++;
+	}
+	res[i] = '\0';
 	return (res);
 }
 
 // int	main(void)
 // {
-// 	char	str[] = "lorem ipsum dolor sit amet";
-
-// 	printf("%s\n", ft_substr(str, 400, 20));
+// 	char *s1 = "Hello, World!. My Name is Phone Min Khant.";
+// 	char *s2 = ft_substr(s1,15,27);
+// 	printf("%s", s2);
 // }

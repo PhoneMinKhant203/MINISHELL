@@ -6,93 +6,57 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/01 12:56:25 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 15:20:34 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/18 15:52:28 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-// void	print_tokens(t_token *t)
-// {
-// 	while (t)
-// 	{
-// 		printf("TYPE=%d VAL=[%s]\n", t->type, t->value);
-// 		t = t->next;
-// 	}
-// }
-
-void	print_cmds(t_cmd *cmd)
-{
-	int	i;
-
-	while (cmd)
-	{
-		printf("CMD:\n");
-
-		i = 0;
-		while (cmd->args[i])
-		{
-			printf("  arg[%d]=%s\n", i, cmd->args[i]);
-			i++;
-		}
-		if (cmd->infile)
-			printf("  infile=%s\n", cmd->infile);
-		if (cmd->outfile)
-			printf("  outfile=%s append=%d\n",
-				cmd->outfile, cmd->append);
-		printf("----\n");
-		cmd = cmd->next;
-	}
-}
-
-int	main(int argc, char **argv, char **envp)
+static void	shell_loop(t_shell *sh)
 {
 	char	*input;
-	t_token *token;
-	t_cmd   *cmds;
 
-	(void)argv;
-	(void)envp;
-	if (argc != 1)
-		return (127); // add error later
-	setup_signals();
-	while (1)
+	while (!sh->should_exit)
 	{
 		input = readline("minishell$ ");
 		if (!input)
 		{
-			printf("exit\n");
+			if (isatty(STDIN_FILENO))
+				ft_putendl_fd("exit", 1);
+			sh->should_exit = 1;
+			sh->exit_code = sh->last_status;
 			break ;
 		}
-		if (input[0])
-			add_history(input);
-		//
-		// args = tokenize(input);
-		// if (args)
-		// {
-		// 	exe_cmd(args, envp);
-		// 	free2p(args);
-		// }
-		//
-		token = tokenize(input);
-		if (!token)
-		{
-			free1p(&input);
-			continue ;
-		}
-		
-		cmds = parse(token);
-		if (!cmds)
-		{
-			free_tokens(token);
-			free1p(&input);
-			continue ;
-		}
-		print_cmds(cmds);
-
-		free_tokens(token);
-		free_cmds(cmds);
-		free1p(&input);
+		sh->line_no++;
+		handle_input(input, sh);
 	}
-	return (0);
+}
+
+static void	init_shell(t_shell *sh, char **envp)
+{
+	sh->env = init_env(envp);
+	sh->last_status = 0;
+	sh->should_exit = 0;
+	sh->exit_code = 0;
+	sh->line_no = 0;
+	update_shlvl(sh);
+	setup_signals();
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	t_shell	sh;
+
+	(void)argv;
+	if (argc != 1)
+		return (1);
+	init_shell(&sh, envp);
+	shell_loop(&sh);
+	if (!sh.env)
+		printf("exit\n");
+	rl_clear_history();
+	free_env(sh.env);
+	if (sh.should_exit)
+		return (sh.exit_code);
+	return (sh.last_status);
 }

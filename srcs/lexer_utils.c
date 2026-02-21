@@ -6,7 +6,7 @@
 /*   By: wintoo <wintoo@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 16:48:11 by wintoo            #+#    #+#             */
-/*   Updated: 2026/02/04 15:21:18 by wintoo           ###   ########.fr       */
+/*   Updated: 2026/02/21 17:18:38 by wintoo           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,57 +21,72 @@ int	skip_spaces(char *s, int *i)
 	return (1);
 }
 
-int	is_operator(char c)
+static int	is_operator(char c)
 {
-	return (c == '|' || c == '<' || c == '>');
+	return (c == '|' || c == '<' || c == '>'
+		|| c == '&' || c == '(' || c == ')');
 }
 
-char	*get_word(char *s, int *i)
+static char	*get_word(char *s, int *i)
 {
 	int		start;
-	int		len;
 	char	quote;
 
-	len = 0;
-	quote = 0;
-	if (s[*i] == '\'' || s[*i] == '"')
-		quote = s[(*i)++];
 	start = *i;
-	while (s[*i])
+	while (s[*i] && s[*i] != ' ' && !is_operator(s[*i]))
 	{
-		if (quote && s[*i] == quote)
-			break ;
-		if (!quote && (s[*i] == ' ' || is_operator(s[*i])))
-			break ;
-		(*i)++;
-		len++;
+		if (s[*i] == '\'' || s[*i] == '"')
+		{
+			quote = s[(*i)++];
+			while (s[*i] && s[*i] != quote)
+				(*i)++;
+			if (s[*i] == quote)
+				(*i)++;
+		}
+		else
+			(*i)++;
 	}
-	if (quote && s[*i] == quote)
-		(*i)++;
-	return (ft_substr(s, start, len));
+	return (ft_substr(s, start, *i - start));
 }
 
-t_token	*get_token(char *s, int *i)
+static t_token	*handle_op_extra(char *s, int *i)
 {
-	if (s[*i] == '|')
-		return ((*i)++, new_token(ft_strdup("|"), T_PIPE));
 	if (s[*i] == '<')
 	{
 		if (s[*i + 1] == '<')
-		{
-			*i += 2;
-			return (new_token(ft_strdup("<<"), T_HEREDOC));
-		}
+			return (*i += 2, new_token(ft_strdup("<<"), T_HEREDOC));
 		return ((*i)++, new_token(ft_strdup("<"), T_IN));
 	}
 	if (s[*i] == '>')
 	{
 		if (s[*i + 1] == '>')
-		{
-			*i += 2;
-			return (new_token(ft_strdup(">>"), T_APPEND));
-		}
+			return (*i += 2, new_token(ft_strdup(">>"), T_APPEND));
 		return ((*i)++, new_token(ft_strdup(">"), T_OUT));
 	}
+	if (s[*i] == '(')
+		return ((*i)++, new_token(ft_strdup("("), T_LPAREN));
+	if (s[*i] == ')')
+		return ((*i)++, new_token(ft_strdup(")"), T_RPAREN));
+	return (NULL);
+}
+
+t_token	*get_token(char *s, int *i)
+{
+	if (s[*i] == '|')
+	{
+		if (s[*i + 1] == '|')
+			return (*i += 2, new_token(ft_strdup("||"), T_OR));
+		if (s[*i + 1] == '&')
+			return (*i += 2, new_token(ft_strdup("|&"), T_PIPE));
+		return ((*i)++, new_token(ft_strdup("|"), T_PIPE));
+	}
+	if (s[*i] == '&')
+	{
+		if (s[*i + 1] == '&')
+			return (*i += 2, new_token(ft_strdup("&&"), T_AND));
+		return ((*i)++, new_token(ft_strdup("&"), T_PIPE));
+	}
+	if (is_operator(s[*i]))
+		return (handle_op_extra(s, i));
 	return (new_token(get_word(s, i), T_WORD));
 }
